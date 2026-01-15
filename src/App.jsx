@@ -4,7 +4,7 @@ function App() {
   const [patients, setPatients] = useState([])
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/patients')
+    fetch(`${import.meta.env.VITE_API_URL}/api/patients`)
       .then(res => res.json())
       .then(data => setPatients(data))
       .catch(err => console.error(err))
