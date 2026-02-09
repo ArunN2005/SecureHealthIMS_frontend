@@ -3,38 +3,67 @@ import toast from 'react-hot-toast'
 import { Card } from '../components/Card'
 import { Modal } from '../components/Modal'
 import { useAuth } from '../context/AuthContext'
-import { ShieldCheck, ShieldOff, Heart, Lock, UserCheck, AlertTriangle, Info } from 'lucide-react'
+import { fetchConsent, updateConsent } from '../services/consentService'
+import { ShieldCheck, ShieldOff, Heart, Lock, UserCheck, AlertTriangle, Info, Database } from 'lucide-react'
 
 export const ConsentDashboard = () => {
   const { user, profile } = useAuth()
   const [hasConsent, setHasConsent] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
   const [showRevokeConfirm, setShowRevokeConfirm] = useState(false)
 
   const userId = user?.id || (profile as Record<string, unknown>)?.id as string || 'unknown'
 
-  const load = () => {
-    /* ── Load consent status from localStorage (mock mode) ── */
-    const consentKey = `consent_${userId}`
-    const stored = localStorage.getItem(consentKey)
-    setHasConsent(stored === 'granted')
+  const load = async () => {
+    try {
+      const { data, error } = await fetchConsent(userId)
+      if (!error && data) {
+        setHasConsent(!!data.has_consented)
+      } else {
+        setHasConsent(false)
+      }
+    } catch {
+      // If backend is unreachable, default to no consent
+      setHasConsent(false)
+    }
     setLoading(false)
   }
 
   useEffect(() => { load() }, [user])
 
-  const onGrantConsent = () => {
-    localStorage.setItem(`consent_${userId}`, 'granted')
-    setHasConsent(true)
-    toast.success('Consent granted — your details are now visible to your care team.')
+  const onGrantConsent = async () => {
+    setActionLoading(true)
+    try {
+      const { error } = await updateConsent(userId, true)
+      if (error) {
+        toast.error('Failed to grant consent. Please try again.')
+      } else {
+        setHasConsent(true)
+        toast.success('Consent granted — your details are now visible to your care team.')
+      }
+    } catch {
+      toast.error('Failed to grant consent. Please try again.')
+    }
+    setActionLoading(false)
   }
 
-  const onRevokeConsent = () => {
-    localStorage.setItem(`consent_${userId}`, 'revoked')
-    setHasConsent(false)
+  const onRevokeConsent = async () => {
+    setActionLoading(true)
+    try {
+      const { error } = await updateConsent(userId, false)
+      if (error) {
+        toast.error('Failed to revoke consent. Please try again.')
+      } else {
+        setHasConsent(false)
+        toast.success('Consent revoked — your details are now hidden from doctors and nurses.')
+      }
+    } catch {
+      toast.error('Failed to revoke consent. Please try again.')
+    }
     setShowRevokeConfirm(false)
-    toast.success('Consent revoked — your details are now hidden from doctors and nurses.')
+    setActionLoading(false)
   }
 
   return (
@@ -50,6 +79,22 @@ export const ConsentDashboard = () => {
             <p className="mt-2 text-sm leading-relaxed text-slate-400">
               At <span className="font-semibold text-primary">Medos Hospital</span>, we believe you should be in complete control of your medical information. 
               This page lets you decide who can see your health records. Your consent matters — it's the foundation of trust between you and your care providers.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Data Ownership Notice ── */}
+      <div className="rounded-xl border border-primary/30 bg-primary/5 px-5 py-4">
+        <div className="flex items-start gap-3">
+          <Database size={18} className="mt-0.5 shrink-0 text-primary" />
+          <div>
+            <p className="text-sm font-semibold text-primary">Your Data, Your Ownership</p>
+            <p className="mt-1 text-xs leading-relaxed text-slate-300">
+              All medical records, visit history, prescriptions, and personal information displayed in this system
+              belong exclusively to you, the patient. Medos Hospital acts only as a custodian of this data to facilitate
+              your care. You have the right to access, control, and revoke access to your information at any time.
+              No clinical staff can view your records without your explicit consent.
             </p>
           </div>
         </div>
@@ -146,7 +191,8 @@ export const ConsentDashboard = () => {
                 <>
                   <button
                     onClick={() => setShowTerms(true)}
-                    className="rounded-lg bg-emerald-600 px-6 py-2.5 font-semibold text-white hover:bg-emerald-500 transition flex items-center gap-2"
+                    disabled={actionLoading}
+                    className="rounded-lg bg-emerald-600 px-6 py-2.5 font-semibold text-white hover:bg-emerald-500 transition flex items-center gap-2 disabled:opacity-50"
                   >
                     <ShieldCheck size={16} /> Grant Consent
                   </button>
@@ -157,7 +203,8 @@ export const ConsentDashboard = () => {
               ) : (
                 <button
                   onClick={() => setShowRevokeConfirm(true)}
-                  className="rounded-lg border border-red-500/40 bg-red-500/10 px-6 py-2.5 font-semibold text-red-400 hover:bg-red-500/20 transition flex items-center gap-2"
+                  disabled={actionLoading}
+                  className="rounded-lg border border-red-500/40 bg-red-500/10 px-6 py-2.5 font-semibold text-red-400 hover:bg-red-500/20 transition flex items-center gap-2 disabled:opacity-50"
                 >
                   <ShieldOff size={16} /> Remove Access
                 </button>
@@ -190,9 +237,10 @@ export const ConsentDashboard = () => {
             </button>
             <button
               onClick={() => { setShowTerms(false); onGrantConsent() }}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 transition"
+              disabled={actionLoading}
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 transition disabled:opacity-50"
             >
-              I Agree — Grant Consent
+              {actionLoading ? 'Granting...' : 'I Agree — Grant Consent'}
             </button>
           </div>
         }
@@ -224,9 +272,10 @@ export const ConsentDashboard = () => {
             </button>
             <button
               onClick={onRevokeConsent}
-              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 transition"
+              disabled={actionLoading}
+              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 transition disabled:opacity-50"
             >
-              Yes, Remove Access
+              {actionLoading ? 'Revoking...' : 'Yes, Remove Access'}
             </button>
           </div>
         }

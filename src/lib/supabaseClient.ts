@@ -17,14 +17,12 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undef
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
 
 if (!isSupabaseConfigured) {
-  // Intentionally loud to avoid silent auth failures in production builds.
-  console.warn('Missing Supabase env vars. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.')
+  throw new Error(
+    'Supabase is not configured: both VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be set in your .env file.'
+  )
 }
 
-const safeUrl = supabaseUrl || 'https://fkqhsgweypbrafwjmnmj.supabase.co'
-const safeKey = supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrcWhzZ3dleXBicmFmd2ptbm1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzODYwNzAsImV4cCI6MjA4Mzk2MjA3MH0.MW5PlxFbsJh26gRchte8I0g6mdSiNAWwid27eLty5Pg'
-
-export const supabase = createClient(safeUrl, safeKey, {
+export const supabase = createClient(supabaseUrl!, supabaseAnonKey!, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,

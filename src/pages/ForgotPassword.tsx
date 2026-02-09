@@ -24,23 +24,22 @@ export const ForgotPassword = () => {
     return () => clearInterval(interval)
   }, [step])
 
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSendOtp = async (e?: React.FormEvent) => {
+    e?.preventDefault()
     if (!email) {
       toast.error('Please enter your email address')
       return
     }
-    
+
     setLoading(true)
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/reset-password',
-    })
+    // Supabase resetPasswordForEmail sends a 6-digit OTP to the user's email
+    const { error } = await supabase.auth.resetPasswordForEmail(email)
     setLoading(false)
 
     if (error) {
       toast.error(error.message || 'Failed to send OTP')
     } else {
-      toast.success('OTP sent to your email!')
+      toast.success('A 6-digit OTP has been sent to your email!')
       setStep('otp')
     }
   }
@@ -51,32 +50,44 @@ export const ForgotPassword = () => {
       toast.error('Please enter the 6-digit OTP')
       return
     }
-    
-    // For OTP verification with Supabase, we verify during password reset
-    // So we just move to the next step
-    toast.success('OTP verified!')
-    setStep('reset')
+
+    setLoading(true)
+    // Verify the OTP with Supabase using type 'recovery'
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: otp,
+      type: 'recovery',
+    })
+    setLoading(false)
+
+    if (error) {
+      toast.error(error.message || 'Invalid or expired OTP')
+    } else {
+      toast.success('OTP verified! Set your new password.')
+      setStep('reset')
+    }
   }
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!newPassword || !confirmPassword) {
       toast.error('Please fill all fields')
       return
     }
-    
+
     if (newPassword !== confirmPassword) {
       toast.error('Passwords do not match')
       return
     }
-    
+
     if (newPassword.length < 6) {
       toast.error('Password must be at least 6 characters')
       return
     }
 
     setLoading(true)
+    // After successful verifyOtp('recovery'), we have an active session and can update the password
     const { error } = await supabase.auth.updateUser({
       password: newPassword,
     })
@@ -98,15 +109,15 @@ export const ForgotPassword = () => {
             <>
               <div className="space-y-2 text-center">
                 <h1 className="text-2xl font-semibold text-slate-100">Forgot Password</h1>
-                <p className="text-sm text-slate-400">Enter your email to receive a verification code.</p>
+                <p className="text-sm text-slate-400">Enter your email to receive a 6-digit verification code.</p>
               </div>
               <form className="mt-6 space-y-4" onSubmit={handleSendOtp}>
-                <FormInput 
-                  label="Email" 
-                  type="email" 
-                  value={email} 
-                  onChange={setEmail} 
-                  placeholder="Enter your email" 
+                <FormInput
+                  label="Email"
+                  type="email"
+                  value={email}
+                  onChange={setEmail}
+                  placeholder="Enter your email"
                 />
                 <button className="primary-btn w-full py-2.5" type="submit" disabled={loading}>
                   {loading ? 'Sending...' : 'Send OTP'}
@@ -127,11 +138,11 @@ export const ForgotPassword = () => {
                 <p className="text-sm text-slate-400">Enter the 6-digit code sent to {email}</p>
               </div>
               <form className="mt-6 space-y-4" onSubmit={handleVerifyOtp}>
-                <FormInput 
-                  label="OTP Code" 
-                  value={otp} 
-                  onChange={setOtp} 
-                  placeholder="Enter 6-digit OTP" 
+                <FormInput
+                  label="OTP Code"
+                  value={otp}
+                  onChange={setOtp}
+                  placeholder="Enter 6-digit OTP"
                   maxLength={6}
                 />
                 <div className="flex items-center justify-between text-xs text-slate-500">
@@ -140,13 +151,13 @@ export const ForgotPassword = () => {
                     type="button"
                     className={`text-slate-500 ${timer === 0 ? 'hover:text-slate-300' : ''}`}
                     disabled={timer !== 0}
-                    onClick={handleSendOtp}
+                    onClick={() => handleSendOtp()}
                   >
                     Resend
                   </button>
                 </div>
-                <button className="primary-btn w-full py-2.5" type="submit">
-                  Verify OTP
+                <button className="primary-btn w-full py-2.5" type="submit" disabled={loading}>
+                  {loading ? 'Verifying...' : 'Verify OTP'}
                 </button>
                 <div className="flex items-center justify-center pt-2 text-xs text-slate-400">
                   <Link className="text-primary hover:underline" to="/login">
@@ -164,19 +175,19 @@ export const ForgotPassword = () => {
                 <p className="text-sm text-slate-400">Enter your new password below.</p>
               </div>
               <form className="mt-6 space-y-4" onSubmit={handleResetPassword}>
-                <FormInput 
-                  label="New Password" 
-                  type="password" 
-                  value={newPassword} 
-                  onChange={setNewPassword} 
-                  placeholder="Enter new password" 
+                <FormInput
+                  label="New Password"
+                  type="password"
+                  value={newPassword}
+                  onChange={setNewPassword}
+                  placeholder="Enter new password"
                 />
-                <FormInput 
-                  label="Confirm Password" 
-                  type="password" 
-                  value={confirmPassword} 
-                  onChange={setConfirmPassword} 
-                  placeholder="Confirm new password" 
+                <FormInput
+                  label="Confirm Password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={setConfirmPassword}
+                  placeholder="Confirm new password"
                 />
                 <button className="primary-btn w-full py-2.5" type="submit" disabled={loading}>
                   {loading ? 'Resetting...' : 'Reset Password'}

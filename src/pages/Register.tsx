@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { Card } from '../components/Card'
 import { FormInput } from '../components/FormInput'
 import { registerUser } from '../services/authService'
+import { supabase } from '../lib/supabaseClient'
 
 export const Register = () => {
   const [fullName, setFullName] = useState('')
@@ -40,16 +41,12 @@ export const Register = () => {
       toast.error('Registration failed: Passwords do not match')
       return
     }
-    // Move directly to email verification
-    setStep('email')
-  }
-
-  const onVerifyEmail = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (emailOtp.trim().length < 6) {
-      toast.error('Verification failed: Enter the 6-digit OTP')
+    if (password.length < 6) {
+      toast.error('Registration failed: Password must be at least 6 characters')
       return
     }
+
+    // Step 1: Register the user with Supabase (sends confirmation OTP email automatically)
     setLoading(true)
     const payload = {
       email,
@@ -63,14 +60,58 @@ export const Register = () => {
     }
     const { error } = await registerUser(payload)
     setLoading(false)
-    if (!error) {
-      if (role === 'patient') {
-        toast.success('Registration successful! Please check your email for confirmation.')
-      } else {
-        toast.success('Registration request sent to Admin for approval.')
-      }
-      navigate('/login')
+
+    if (error) {
+      return // registerUser already shows toast via handleSupabaseError
     }
+
+    toast.success('A 6-digit OTP has been sent to your email!')
+    setStep('email')
+  }
+
+  const onResendOtp = async () => {
+    setLoading(true)
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+    })
+    setLoading(false)
+
+    if (error) {
+      toast.error(error.message || 'Failed to resend OTP')
+    } else {
+      toast.success('OTP resent to your email!')
+      setEmailTimer(50)
+    }
+  }
+
+  const onVerifyEmail = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (emailOtp.trim().length < 6) {
+      toast.error('Verification failed: Enter the 6-digit OTP')
+      return
+    }
+
+    // Step 2: Verify the OTP with Supabase
+    setLoading(true)
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: emailOtp.trim(),
+      type: 'signup',
+    })
+    setLoading(false)
+
+    if (error) {
+      toast.error(error.message || 'Invalid or expired OTP')
+      return
+    }
+
+    if (role === 'patient') {
+      toast.success('Email verified! Registration complete.')
+    } else {
+      toast.success('Email verified! Registration request sent to Admin for approval.')
+    }
+    navigate('/login')
   }
 
   return (
@@ -172,8 +213,8 @@ export const Register = () => {
                   <button
                     type="button"
                     className={`text-slate-500 ${emailTimer === 0 ? 'hover:text-slate-300' : ''}`}
-                    disabled={emailTimer !== 0}
-                    onClick={() => setEmailTimer(50)}
+                    disabled={emailTimer !== 0 || loading}
+                    onClick={onResendOtp}
                   >
                     Resend
                   </button>

@@ -54,7 +54,7 @@ Created TypeScript service files for all backend endpoints:
 ### 3. Frontend Pages Updated
 
 #### Updated to use Backend API:
-- ✅ `ConsentDashboard.tsx` - Grant/revoke consent via API
+- ✅ `ConsentDashboard.tsx` - Grant/revoke consent via Supabase (aligned with ConsentGuard)
 - ✅ `ConsentHistory.tsx` - View consent history from API
 - ✅ `PatientAccessLogs.tsx` - View audit logs via API
 - ✅ `AdminAuditDashboard.tsx` - Admin audit logs with filters

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { LogOut, Bell, UserPlus, Stethoscope, HeartPulse, Info, Calendar } from 'lucide-react'
+import { LogOut, Bell, Stethoscope, HeartPulse, Info, Calendar } from 'lucide-react'
 import {
   fetchNotifications,
   getUnreadCount,
@@ -153,10 +153,10 @@ export const TopHeader = () => {
           {notifications.length > 0 && (
             <div className="border-t border-slate-800 bg-slate-800/30 px-4 py-2 text-center">
               <button
-                onClick={() => { setOpen(false); navigate('/admin/notifications') }}
+                onClick={() => { handleMarkAllRead(); setOpen(false) }}
                 className="text-xs font-medium text-cyan-400 hover:text-cyan-300 transition"
               >
-                View all notifications
+                Dismiss all notifications
               </button>
             </div>
           )}
