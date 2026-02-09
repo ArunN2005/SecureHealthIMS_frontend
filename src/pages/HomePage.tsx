@@ -45,7 +45,7 @@ export const HomePage = () => {
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-slate-800/50 bg-[#050814]/80 backdrop-blur-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5">
+          <button onClick={() => scrollTo('#home')} className="flex items-center gap-2.5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500">
               <ShieldCheck size={22} className="text-white" />
             </div>
@@ -53,7 +53,7 @@ export const HomePage = () => {
               <span className="text-lg font-bold text-white">Med</span>
               <span className="text-lg font-bold text-cyan-400">os</span>
             </div>
-          </Link>
+          </button>
 
           {/* Desktop links */}
           <div className="hidden items-center gap-8 md:flex">
@@ -144,8 +144,6 @@ export const HomePage = () => {
               {[
                 { value: '10K+', label: 'Patients' },
                 { value: '200+', label: 'Doctors' },
-                { value: '99.9%', label: 'Uptime' },
-                { value: '256-bit', label: 'Encryption' },
               ].map((s) => (
                 <div key={s.label} className="text-center">
                   <p className="text-2xl font-bold text-white">{s.value}</p>
@@ -416,8 +414,8 @@ export const HomePage = () => {
 
           <div className="mt-16 grid gap-8 md:grid-cols-3">
             {[
-              { icon: <Phone size={22} />, title: 'Phone', lines: ['+1 (555) 123-4567', '+1 (555) 987-6543'] },
-              { icon: <Mail size={22} />, title: 'Email', lines: ['support@medos.com', 'admin@medos.com'] },
+              { icon: <Phone size={22} />, title: 'Phone', lines: ['+91 98765 43210', '+91 87654 32109'] },
+              { icon: <Mail size={22} />, title: 'Email', lines: ['support@medos.com', 'm0907268228@gmail.com'] },
               { icon: <MapPin size={22} />, title: 'Address', lines: ['123 Health Street', 'Wellness City, HC 45678'] },
             ].map((c) => (
               <div key={c.title} className="rounded-2xl border border-slate-800/40 bg-white/[0.02] p-8 text-center transition hover:border-slate-700/50 hover:bg-white/[0.04]">
@@ -439,7 +437,7 @@ export const HomePage = () => {
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col items-center gap-8 md:flex-row md:justify-between">
             {/* Logo */}
-            <div className="flex items-center gap-2.5">
+            <button onClick={() => scrollTo('#home')} className="flex items-center gap-2.5">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500">
                 <ShieldCheck size={22} className="text-white" />
               </div>
@@ -447,7 +445,7 @@ export const HomePage = () => {
                 <span className="text-lg font-bold text-white">Med</span>
                 <span className="text-lg font-bold text-cyan-400">os</span>
               </div>
-            </div>
+            </button>
 
             {/* Links */}
             <div className="flex flex-wrap items-center justify-center gap-6">
