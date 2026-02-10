@@ -7,6 +7,7 @@ import AdminDashboard from './pages/Dashboard/AdminDashboard';
 import PatientDashboard from './pages/Dashboard/PatientDashboard';
 import DoctorDashboard from './pages/Dashboard/DoctorDashboard';
 import Navbar from './components/layout/Navbar';
+import CustomCursor from './components/common/CustomCursor';
 
 // Placeholder Home/Patient Dashboard
 const Home = () => {
@@ -21,11 +22,13 @@ const Home = () => {
 
   // Default fallback for doctor or other roles if not yet implemented
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)' }}>
+    <div className="animate-fade-in" style={{ minHeight: '100vh', position: 'relative' }}>
       <Navbar />
       <div style={{ padding: '24px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 700 }}>Welcome, {user.name}</h1>
-        <p style={{ marginTop: '16px' }}>Dashboard for {user.role} is under construction.</p>
+        <h1 className="title-font" style={{ fontSize: '3.5rem', fontWeight: 800 }}>Welcome, {user.name}</h1>
+        <p style={{ marginTop: '16px', fontSize: '1.2rem', color: 'var(--text-secondary)' }}>
+          Dashboard for <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{user.role}</span> is under construction.
+        </p>
       </div>
     </div>
   );
@@ -50,6 +53,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 function App() {
   return (
     <Router>
+      <CustomCursor />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

@@ -21,45 +21,69 @@ const PatientRegistrationModal = ({
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(10px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 1000,
-            padding: '20px'
+            zIndex: 2000,
+            padding: '24px'
         }}>
-            <div style={{
-                backgroundColor: 'var(--bg-primary)',
-                borderRadius: 'var(--radius-lg)',
-                padding: '32px',
-                maxWidth: '600px',
+            <div className="glass-card animate-fade-in" style={{
+                padding: '40px',
+                maxWidth: '640px',
                 width: '100%',
                 maxHeight: '90vh',
                 overflowY: 'auto',
-                position: 'relative'
+                position: 'relative',
+                boxShadow: '0 40px 80px rgba(0,0,0,0.5)',
+                border: '1px solid var(--glass-highlight)',
+                borderRadius: 'var(--radius-lg)'
             }}>
                 <button
                     onClick={onClose}
+                    className="hover-scale"
                     style={{
                         position: 'absolute',
-                        top: '16px',
-                        right: '16px',
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: 'var(--text-secondary)',
-                        padding: '8px'
+                        top: '24px',
+                        right: '24px',
+                        background: 'var(--glass-bg)',
+                        border: '1px solid var(--glass-stroke)',
+                        borderRadius: 'var(--radius-full)',
+                        cursor: 'none',
+                        color: 'var(--text-primary)',
+                        padding: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.3s ease'
                     }}
                 >
-                    <X size={24} />
+                    <X size={20} />
                 </button>
 
-                <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px' }}>
-                    Register as User
-                </h2>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
-                    Fill in your details to register in the system. Fields marked with * are required.
-                </p>
+                <div style={{ marginBottom: '32px' }}>
+                    <div style={{
+                        display: 'inline-block',
+                        background: 'var(--primary-glow)',
+                        color: 'var(--primary)',
+                        padding: '6px 12px',
+                        borderRadius: 'var(--radius-full)',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
+                        marginBottom: '12px'
+                    }}>
+                        Registration
+                    </div>
+                    <h2 className="title-font" style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.5px' }}>
+                        Join the Network
+                    </h2>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
+                        Complete your profile to unlock full platform features and better healthcare coordination.
+                    </p>
+                </div>
 
                 {message && (
                     <div style={{

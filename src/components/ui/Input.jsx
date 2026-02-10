@@ -1,56 +1,62 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const Input = ({ label, type = 'text', name, value, onChange, placeholder, required = false, error, ...props }) => {
+    const [focused, setFocused] = useState(false);
+
     return (
-        <div style={{ marginBottom: '16px', width: '100%' }}>
+        <div style={{ marginBottom: '24px', width: '100%' }}>
             {label && (
                 <label style={{
                     display: 'block',
-                    marginBottom: '8px',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    color: 'var(--text-secondary)'
+                    marginBottom: '10px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: focused ? 'var(--primary)' : 'var(--text-secondary)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    transition: 'all 0.3s ease'
                 }}>
                     {label} {required && <span style={{ color: 'var(--danger)' }}>*</span>}
                 </label>
             )}
-            <input
-                type={type}
-                name={name}
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-                required={required}
-                style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    borderRadius: 'var(--radius-md)',
-                    border: error ? '1px solid var(--danger)' : 'var(--glass-border)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Semi-transparent
-                    backdropFilter: 'blur(10px)',
-                    color: 'var(--text-primary)',
-                    fontSize: '16px',
-                    outline: 'none',
-                    transition: 'all 0.2s ease',
-                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)',
-                }}
-                onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--primary)';
-                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(0, 122, 255, 0.2)';
-                }}
-                onBlur={(e) => {
-                    e.target.style.borderColor = error ? 'var(--danger)' : 'var(--glass-border)';
-                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-                    e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.05)';
-                }}
-                {...props}
-            />
-            {error && (
-                <span style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: 'var(--danger)' }}>
-                    {error}
-                </span>
-            )}
+            <div style={{ position: 'relative' }}>
+                <input
+                    type={type}
+                    name={name}
+                    value={value}
+                    onChange={onChange}
+                    placeholder={placeholder}
+                    required={required}
+                    style={{
+                        width: '100%',
+                        padding: '14px 18px',
+                        borderRadius: 'var(--radius-md)',
+                        border: '1px solid',
+                        borderColor: error ? 'var(--danger)' : (focused ? 'var(--primary)' : 'var(--glass-stroke)'),
+                        backgroundColor: focused ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.04)',
+                        backdropFilter: 'blur(12px)',
+                        color: 'var(--text-primary)',
+                        fontSize: '16px',
+                        outline: 'none',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: focused ? '0 0 20px var(--primary-glow)' : 'none',
+                    }}
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => setFocused(false)}
+                    {...props}
+                />
+                {error && (
+                    <span style={{
+                        display: 'block',
+                        marginTop: '6px',
+                        fontSize: '12px',
+                        color: 'var(--danger)',
+                        fontWeight: 500
+                    }}>
+                        {error}
+                    </span>
+                )}
+            </div>
         </div>
     );
 };

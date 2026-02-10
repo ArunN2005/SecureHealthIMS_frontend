@@ -5,6 +5,7 @@ import Tabs from '../../components/ui/Tabs';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import { Moon, Sun, LogOut, User, LayoutDashboard, Stethoscope, Search } from 'lucide-react';
 
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
@@ -149,31 +150,70 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div style={{ minHeight: '100vh', /* Background is now global */ }}>
+        <div style={{ minHeight: '100vh', position: 'relative' }}>
             <Navbar />
-            <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-                <div style={{ marginBottom: '32px' }}>
-                    <h1 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)' }}>Admin Dashboard</h1>
-                    <p style={{ color: 'var(--text-secondary)' }}>Manage users and verifications</p>
+            <div className="animate-fade-in" style={{ padding: '40px 24px', maxWidth: '1200px', margin: '0 auto' }}>
+                <div style={{ marginBottom: '48px', textAlign: 'left' }}>
+                    <div style={{
+                        display: 'inline-block',
+                        background: 'var(--primary-glow)',
+                        color: 'var(--primary)',
+                        padding: '8px 16px',
+                        borderRadius: 'var(--radius-full)',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
+                        marginBottom: '16px'
+                    }}>
+                        Administrative Control
+                    </div>
+                    <h1 className="title-font" style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-1px' }}>
+                        System Overview
+                    </h1>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
+                        Manage health professionals, patient verifications, and platform security.
+                    </p>
                 </div>
 
                 {/* Stats Section */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-                    <Card padding="20px">
-                        <h3 style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Verified Doctors</h3>
-                        <p style={{ fontSize: '24px', fontWeight: 700, color: 'var(--primary)' }}>{stats.doctors}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '48px' }}>
+                    <Card padding="32px">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                            <div>
+                                <h3 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>Verified Doctors</h3>
+                                <p style={{ fontSize: '36px', fontWeight: 800, color: 'var(--primary)' }}>{stats.doctors}</p>
+                            </div>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Stethoscope size={20} color="var(--primary)" />
+                            </div>
+                        </div>
                     </Card>
-                    <Card padding="20px">
-                        <h3 style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Active Nurses</h3>
-                        <p style={{ fontSize: '24px', fontWeight: 700, color: 'var(--success)' }}>{stats.nurses}</p>
+                    <Card padding="32px">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                            <div>
+                                <h3 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>Active Nurses</h3>
+                                <p style={{ fontSize: '36px', fontWeight: 800, color: 'var(--success)' }}>{stats.nurses}</p>
+                            </div>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(0, 209, 160, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <User size={20} color="var(--success)" />
+                            </div>
+                        </div>
                     </Card>
-                    <Card padding="20px">
-                        <h3 style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Verified Patients</h3>
-                        <p style={{ fontSize: '24px', fontWeight: 700, color: 'var(--info)' }}>{stats.patients}</p>
+                    <Card padding="32px">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                            <div>
+                                <h3 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>Verified Patients</h3>
+                                <p style={{ fontSize: '36px', fontWeight: 800, color: 'var(--accent)' }}>{stats.patients}</p>
+                            </div>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(168, 85, 247, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <LayoutDashboard size={20} color="var(--accent)" />
+                            </div>
+                        </div>
                     </Card>
                 </div>
 
-                <div style={{ marginBottom: '24px', maxWidth: '400px' }}>
+                <div style={{ marginBottom: '32px', maxWidth: '480px' }}>
                     <Input
                         placeholder="Search users by name or email..."
                         value={searchQuery}

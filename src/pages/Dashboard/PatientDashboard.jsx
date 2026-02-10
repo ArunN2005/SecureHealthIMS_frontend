@@ -720,35 +720,62 @@ const PatientDashboard = () => {
     };
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)' }}>
+        <div style={{ minHeight: '100vh', position: 'relative' }}>
             <Navbar />
-            <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
-                <header style={{ marginBottom: '32px' }}>
-                    <h1 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>
-                        Welcome back, {user?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}
+            <div className="animate-fade-in" style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px' }}>
+                <header style={{ marginBottom: '48px' }}>
+                    <div style={{
+                        display: 'inline-block',
+                        background: 'var(--primary-glow)',
+                        color: 'var(--primary)',
+                        padding: '8px 16px',
+                        borderRadius: 'var(--radius-full)',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
+                        marginBottom: '16px'
+                    }}>
+                        Patient Portal
+                    </div>
+                    <h1 className="title-font" style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '12px', letterSpacing: '-1.5px' }}>
+                        Welcome back, <span style={{ color: 'var(--primary)' }}>{user?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}</span>
                     </h1>
-                    <p style={{ color: 'var(--text-secondary)' }}>Manage your health profile and privacy settings.</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Manage your health profile, consultation history, and privacy settings.</p>
                 </header>
 
-                <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', overflowX: 'auto', paddingBottom: '4px' }}>
-                    {['overview', 'appointments', 'medical-history', 'prescriptions', 'profile', 'privacy'].map(tab => (
+                <div style={{
+                    display: 'flex',
+                    gap: '12px',
+                    marginBottom: '40px',
+                    overflowX: 'auto',
+                    padding: '8px',
+                    background: 'var(--glass-bg)',
+                    borderRadius: 'var(--radius-full)',
+                    border: '1px solid var(--glass-stroke)',
+                    width: 'fit-content',
+                    backdropFilter: 'blur(20px)'
+                }}>
+                    {['overview', 'medical-history', 'prescriptions', 'profile', 'privacy'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             style={{
-                                padding: '10px 20px',
+                                padding: '12px 24px',
                                 borderRadius: 'var(--radius-full)',
                                 border: 'none',
-                                backgroundColor: activeTab === tab ? 'var(--accent)' : 'var(--glass-bg)',
+                                backgroundColor: activeTab === tab ? 'var(--primary)' : 'transparent',
                                 color: activeTab === tab ? 'white' : 'var(--text-secondary)',
-                                fontWeight: 500,
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                                textTransform: 'capitalize',
-                                backdropFilter: 'blur(10px)'
+                                fontWeight: 700,
+                                fontSize: '14px',
+                                cursor: 'none',
+                                transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px'
                             }}
+                            className="hover-scale"
                         >
-                            {tab}
+                            {tab.replace('-', ' ')}
                         </button>
                     ))}
                 </div>
@@ -756,10 +783,10 @@ const PatientDashboard = () => {
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeTab}
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.2 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                     >
                         {renderTabContent()}
                     </motion.div>

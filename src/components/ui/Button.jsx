@@ -1,55 +1,54 @@
 import React from 'react';
-import { useThemeContext } from '../../context/ThemeContext';
 import clsx from 'clsx';
 
 const Button = ({ children, variant = 'primary', size = 'md', className, fullWidth = false, style = {}, ...props }) => {
-    const { theme } = useThemeContext();
-
     const baseStyles = {
-        borderRadius: '9999px', // Pill shape
-        fontWeight: '600',
-        cursor: 'pointer',
+        borderRadius: 'var(--radius-full)',
+        fontWeight: '700',
+        cursor: 'none', // Custom cursor handles this
         border: 'none',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
         position: 'relative',
         overflow: 'hidden',
         outline: 'none',
-        width: fullWidth ? '100%' : 'auto', // Restore fullWidth support
-        // Common glass feel for all buttons
-        backdropFilter: 'blur(10px)',
+        width: fullWidth ? '100%' : 'auto',
+        letterSpacing: '0.5px',
+        textTransform: 'uppercase',
+        fontSize: '14px'
     };
 
     const variants = {
         primary: {
-            background: 'var(--primary-gradient)', // Gradient
+            background: 'var(--primary)',
             color: '#FFFFFF',
-            boxShadow: '0 4px 15px rgba(0, 122, 255, 0.3)', // Colored glow
-            border: '1px solid rgba(255,255,255,0.2)',
+            boxShadow: '0 8px 24px var(--primary-glow)',
+            border: '1px solid rgba(255,255,255,0.1)',
         },
         secondary: {
-            backgroundColor: 'rgba(142, 142, 147, 0.15)',
+            background: 'var(--glass-bg)',
             color: 'var(--text-primary)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            border: '1px solid var(--glass-stroke)',
+            backdropFilter: 'blur(10px)',
         },
         outline: {
             backgroundColor: 'transparent',
-            border: '1px solid var(--primary)',
+            border: '2px solid var(--primary)',
             color: 'var(--primary)',
         },
         danger: {
-            background: 'linear-gradient(135deg, #FF3B30 0%, #FF2D55 100%)',
+            background: 'var(--danger)',
             color: '#FFFFFF',
-            boxShadow: '0 4px 15px rgba(255, 59, 48, 0.3)',
+            boxShadow: '0 8px 24px rgba(255, 59, 48, 0.2)',
         }
     };
 
     const sizes = {
-        sm: { padding: '8px 16px', fontSize: '13px' },
-        md: { padding: '12px 24px', fontSize: '15px' },
-        lg: { padding: '16px 32px', fontSize: '18px' },
+        sm: { padding: '10px 20px', fontSize: '12px' },
+        md: { padding: '14px 28px' },
+        lg: { padding: '18px 36px', fontSize: '16px' },
     };
 
     const computedStyle = {
@@ -61,29 +60,29 @@ const Button = ({ children, variant = 'primary', size = 'md', className, fullWid
 
     return (
         <button
-            className={clsx(className)}
+            className={clsx('hover-scale', className)}
             style={computedStyle}
             onMouseEnter={(e) => {
-                if (variant === 'primary' || variant === 'danger') {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = variant === 'primary'
-                        ? '0 8px 25px rgba(0, 122, 255, 0.5)'
-                        : '0 8px 25px rgba(255, 59, 48, 0.5)';
-                }
+                e.currentTarget.style.filter = 'brightness(1.1)';
             }}
             onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = variants[variant].boxShadow || 'none';
-            }}
-            onMouseDown={(e) => {
-                e.currentTarget.style.transform = 'scale(0.97)';
-            }}
-            onMouseUp={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)'; // Return to hover state
+                e.currentTarget.style.filter = 'brightness(1)';
             }}
             {...props}
         >
-            {children}
+            <span style={{ position: 'relative', zIndex: 1 }}>{children}</span>
+            {/* Glossy Reflection Effect */}
+            <div style={{
+                position: 'absolute',
+                top: '-50%',
+                left: '-50%',
+                width: '200%',
+                height: '200%',
+                background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent)',
+                transform: 'rotate(45deg)',
+                transition: 'all 0.6s ease',
+                pointerEvents: 'none'
+            }} className="button-gloss" />
         </button>
     );
 };
