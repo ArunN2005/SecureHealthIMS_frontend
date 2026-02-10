@@ -21,6 +21,7 @@ import { NursePatients } from '../pages/NursePatients'
 import { DashboardHome } from '../pages/DashboardHome'
 import { ComingSoon } from '../pages/ComingSoon'
 import { ProfileSetup } from '../pages/ProfileSetup'
+import { HomePage } from '../pages/HomePage'
 
 /* ── admin pages ── */
 import { AdminDashboardHome } from '../pages/admin/AdminDashboardHome'
@@ -37,6 +38,7 @@ import { AdminNurses } from '../pages/admin/AdminNurses'
 export const AppRoutes = () => {
   return (
     <Routes>
+      <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -46,7 +48,7 @@ export const AppRoutes = () => {
         <Route path="/profile-setup" element={<ProfileSetup />} />
 
         <Route element={<DashboardLayout />}>
-          <Route index element={<DashboardHome />} />
+          <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/coming-soon" element={<ComingSoon />} />
 
