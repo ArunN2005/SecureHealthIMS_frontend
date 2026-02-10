@@ -1,3 +1,10 @@
+/**
+ * SecureHealthIMS - Frontend Application Shell
+ * 
+ * This is the main entry point for the React application.
+ * It handles global routing, authentication-based redirects,
+ * and maintains the consistent layout structure.
+ */
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
