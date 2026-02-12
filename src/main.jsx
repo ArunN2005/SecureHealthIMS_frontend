@@ -1,3 +1,9 @@
+/**
+ * React Application Entry Point
+ * 
+ * Mounts the root component to the DOM and wraps the app with
+ * global context providers for authentication and theme management.
+ */
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
