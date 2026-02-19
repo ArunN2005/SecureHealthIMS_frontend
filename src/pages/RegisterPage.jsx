@@ -1,8 +1,11 @@
+/**
+ * Registration Page
+ * 
+ * Handles new user onboarding with a multi-role registration form.
+ * Optimized for clarity and ease of use for both patients and medical staff.
+ */
 import React from 'react';
 // UI note: Registration page optimized for new user onboarding.
-// TODO: Consider surfacing role-specific help text near the form.
-// META: Future enhancements may include inline validation hints.
-// TRACKING: Registration success metrics should be handled server-side.
 import RegisterForm from '../components/auth/RegisterForm';
 import Card from '../components/ui/Card';
 import Navbar from '../components/layout/Navbar';
