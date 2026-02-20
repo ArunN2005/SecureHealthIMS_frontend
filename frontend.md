@@ -616,4 +616,5 @@ This architecture keeps cross‑cutting concerns (auth, theme, API client, styli
 <!-- frontend-doc-rev7 -->
 <!-- frontend-doc-rev8 -->
 <!-- frontend-doc-rev9 -->
+<!-- frontend-doc-rev10 -->
 
