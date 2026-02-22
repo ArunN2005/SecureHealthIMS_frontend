@@ -1,4 +1,5 @@
 import React from 'react';
+// UI note: Login page layout tuned for patient portal entry.
 import LoginForm from '../components/auth/LoginForm';
 import Card from '../components/ui/Card';
 import Navbar from '../components/layout/Navbar';
