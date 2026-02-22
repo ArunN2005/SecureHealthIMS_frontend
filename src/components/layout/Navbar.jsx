@@ -1,3 +1,10 @@
+/**
+ * Global Navigation Component
+ * 
+ * Provides site-wide navigation, authentication state displays,
+ * and theme toggling functionality. Implements a premium glassmorphic
+ * design with a responsive mobile drawer.
+ */
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useThemeContext } from '../../context/ThemeContext';
