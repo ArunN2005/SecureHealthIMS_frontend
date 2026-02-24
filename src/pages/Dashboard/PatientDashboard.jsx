@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// Page: Patient dashboard entry for personal health data.
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/axios';
 import Navbar from '../../components/layout/Navbar';
