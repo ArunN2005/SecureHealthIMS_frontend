@@ -1,5 +1,6 @@
 import React from 'react';
 // UI note: Registration page optimized for new user onboarding.
+// TODO: Consider surfacing role-specific help text near the form.
 import RegisterForm from '../components/auth/RegisterForm';
 import Card from '../components/ui/Card';
 import Navbar from '../components/layout/Navbar';
