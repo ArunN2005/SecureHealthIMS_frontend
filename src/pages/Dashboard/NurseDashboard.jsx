@@ -1,4 +1,11 @@
-﻿import React, { useState, useEffect } from 'react';
+/**
+ * Nurse Dashboard
+ * 
+ * Provides medical staff with read-only access to patient records,
+ * prescriptions, and medical history. Designed for care coordination
+ * with strict audit-logging of all data access.
+ */
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/axios';
 import Navbar from '../../components/layout/Navbar';
