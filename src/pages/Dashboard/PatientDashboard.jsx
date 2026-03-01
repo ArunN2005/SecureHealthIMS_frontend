@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // Page: Patient dashboard entry for personal health data.
 // NOTE: Registration modal behavior is described in the frontend docs.
+// META: Tabs and cards follow the shared UI patterns.
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/axios';
 import Navbar from '../../components/layout/Navbar';
