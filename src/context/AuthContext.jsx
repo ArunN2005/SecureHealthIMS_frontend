@@ -1,3 +1,10 @@
+/**
+ * Authentication Context
+ * 
+ * Manages global authentication state, user profile synchronization,
+ * and persistent session handling using LocalStorage. Provides 
+ * simplified hooks for login, registration, and logout across the app.
+ */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api/axios';
 
