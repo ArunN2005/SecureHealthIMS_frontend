@@ -9,6 +9,8 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { User, LayoutDashboard, Stethoscope } from 'lucide-react';
+import AuditLogs from '../../components/audit/AuditLogs';
+import IncidentLogs from '../../components/audit/IncidentLogs';
 
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
@@ -17,6 +19,8 @@ const AdminDashboard = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [auditLogs, setAuditLogs] = useState([]);
     const [auditLoading, setAuditLoading] = useState(true);
+    const [securityAssumptions, setSecurityAssumptions] = useState(null);
+    const [loadingSecurity, setLoadingSecurity] = useState(false);
 
     const fetchUsers = async () => {
         try {
@@ -50,6 +54,20 @@ const AdminDashboard = () => {
         fetchAuditLogs();
     }, []);
 
+    const fetchSecurityAssumptions = async () => {
+        setLoadingSecurity(true);
+        try {
+            const res = await api.get('/admin/security-assumptions');
+            if (res.data.success) {
+                setSecurityAssumptions(res.data.data);
+            }
+        } catch (err) {
+            console.error('Failed to fetch security assumptions:', err);
+        } finally {
+            setLoadingSecurity(false);
+        }
+    };
+
     const handleApprove = async (id) => {
         try {
             await api.post(`/admin/approve/${id}`);
@@ -57,6 +75,16 @@ const AdminDashboard = () => {
             fetchUsers(); // Refresh list
         } catch {
             alert('Failed to approve doctor');
+        }
+    };
+
+    const handleApproveNurse = async (id) => {
+        try {
+            await api.post(`/admin/approve-nurse/${id}`);
+            alert('Nurse approved successfully');
+            fetchUsers(); // Refresh list
+        } catch {
+            alert('Failed to approve nurse');
         }
     };
 
@@ -94,19 +122,28 @@ const AdminDashboard = () => {
         <div style={{ display: 'grid', gap: '16px' }}>
             {list.length === 0 && <p style={{ color: 'var(--text-secondary)' }}>No users found.</p>}
             {list.map(user => (
-                <Card key={user.id} padding="16px" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Card key={user.id} padding="16px" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} className="user-card-content">
                     <div>
                         <h4 style={{ fontSize: '16px', fontWeight: 600 }}>{user.name} ({user.email})</h4>
                         <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                             <span style={{ marginRight: '12px' }}>Role: {user.role}</span>
 
                             {/* Status based on verified flag as requested */}
-                            <span style={{
-                                color: user.verified ? 'var(--success)' : 'var(--danger)',
-                                fontWeight: 500
-                            }}>
-                                Status: {user.verified ? 'Unbanned' : 'Banned'}
-                            </span>
+                            {user.role === 'nurse' ? (
+                                <span style={{
+                                    color: user.isverified ? 'var(--danger)' : 'var(--success)',
+                                    fontWeight: 500
+                                }}>
+                                    Status: {user.isverified ? 'Banned (Pending)' : 'Approved'}
+                                </span>
+                            ) : (
+                                <span style={{
+                                    color: user.verified ? 'var(--success)' : 'var(--danger)',
+                                    fontWeight: 500
+                                }}>
+                                    Status: {user.verified ? 'Unbanned' : 'Banned'}
+                                </span>
+                            )}
 
                             {/* Patient Consent */}
                             {user.role === 'patient' && (
@@ -120,10 +157,15 @@ const AdminDashboard = () => {
                         )}
                     </div>
                     {showActions && (
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }} className="user-actions">
                             {/* Doctor Approval (Only for unverified doctors) */}
                             {user.role === 'doctor' && !user.verified && (
                                 <Button size="sm" onClick={() => handleApprove(user.id)}>Approve</Button>
+                            )}
+                            
+                            {/* Nurse Approval */}
+                            {user.role === 'nurse' && user.isverified && (
+                                <Button size="sm" onClick={() => handleApproveNurse(user.id)}>Approve</Button>
                             )}
 
                             {/* Ban/Unban Buttons based on verified status */}
@@ -136,6 +178,19 @@ const AdminDashboard = () => {
                     )}
                 </Card>
             ))}
+            <style>{`
+                @media (max-width: 768px) {
+                    .user-card-content {
+                        flex-direction: column !important;
+                        align-items: flex-start !important;
+                        gap: 16px !important;
+                    }
+                    .user-actions {
+                        width: 100% !important;
+                        justify-content: flex-start !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 
@@ -200,11 +255,49 @@ const AdminDashboard = () => {
         </div>
     );
 
+    const SecurityTab = () => (
+        <div>
+            <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: 'var(--primary)' }}>Security Assumptions & Documentation</h3>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                    Review the system's security assumptions and compliance documentation.
+                </p>
+                <Button
+                    onClick={fetchSecurityAssumptions}
+                    disabled={loadingSecurity}
+                    style={{ marginBottom: '16px' }}
+                >
+                    {loadingSecurity ? 'Loading...' : 'Load Security Documentation'}
+                </Button>
+                {securityAssumptions && (
+                    <Card padding="24px">
+                        <pre style={{
+                            whiteSpace: 'pre-wrap',
+                            fontFamily: 'monospace',
+                            fontSize: '14px',
+                            color: 'var(--text-primary)',
+                            background: 'var(--bg-secondary)',
+                            padding: '16px',
+                            borderRadius: '8px',
+                            overflow: 'auto',
+                            maxHeight: '600px'
+                        }}>
+                            {securityAssumptions}
+                        </pre>
+                    </Card>
+                )}
+            </div>
+        </div>
+    );
+
     const tabs = [
         { id: 'doctors', label: 'Doctors', content: <DoctorTabContent /> },
         { id: 'patients', label: 'Patients', content: <UserList list={patients} showActions={true} /> },
         { id: 'nurses', label: 'Nurses', content: <UserList list={nurses} showActions={true} /> },
         { id: 'audit', label: 'System Logs', content: <AuditLogsTab /> },
+        { id: 'audit-logs', label: 'Audit Logs', content: <AuditLogs isAdmin={true} /> },
+        { id: 'incident-logs', label: 'Incident Logs', content: <IncidentLogs /> },
+        { id: 'security', label: 'Security', content: <SecurityTab /> },
     ];
 
     if (loading) return <div style={{ padding: '24px' }}>Loading...</div>;
@@ -236,7 +329,7 @@ const AdminDashboard = () => {
                     }}>
                         Administrative Control
                     </div>
-                    <h1 className="title-font" style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-1px' }}>
+                    <h1 className="title-font dashboard-title" style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-1px' }}>
                         System Overview
                     </h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
@@ -291,6 +384,19 @@ const AdminDashboard = () => {
 
                 <Tabs tabs={tabs} />
             </div>
+            <style>{`
+                @media (max-width: 768px) {
+                    .dashboard-title {
+                        fontSize: 2.2rem !important;
+                    }
+                    div[style*="padding: 40px 24px"] {
+                        padding: 24px 16px !important;
+                    }
+                    div[style*="margin-bottom: 48px"] {
+                        margin-bottom: 24px !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 };

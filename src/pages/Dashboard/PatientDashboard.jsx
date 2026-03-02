@@ -9,10 +9,11 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
-import { User, Edit2, Save, X, Shield, Check, AlertCircle, FileText, Pill } from 'lucide-react';
+import { User, Edit2, Save, X, Shield, Check, AlertCircle, FileText, Pill, Lock, Eye, EyeOff, ShieldCheck, BadgeCheck, BookOpen, Scale } from 'lucide-react';
 // eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from 'framer-motion';
 import PatientRegistrationModal from '../../components/patient/PatientRegistrationModal';
+import AuditLogs from '../../components/audit/AuditLogs';
 
 const PatientDashboard = () => {
     const { user, updateProfile } = useAuth();
@@ -26,6 +27,8 @@ const PatientDashboard = () => {
     const [doctors, setDoctors] = useState([]);
     const [loadingData, setLoadingData] = useState(false);
     const [bookingForm, setBookingForm] = useState({ doctor_id: '', date: '', time: '' });
+    const [loadingVisits, setLoadingVisits] = useState(false);
+    const [loadingPrescriptions, setLoadingPrescriptions] = useState(false);
 
 
 
@@ -69,27 +72,43 @@ const PatientDashboard = () => {
     const [message, setMessage] = useState('');
 
     const fetchVisits = async () => {
-        setLoadingData(true);
+        setLoadingVisits(true);
         try {
             const res = await api.get('/visits/me');
             if (res.data.success) {
-                setVisits(res.data.data.visits);
+                setVisits(res.data.data.visits || []);
             }
         } catch (error) {
             console.error("Failed to fetch visits", error);
         }
-        setLoadingData(false);
+        setLoadingVisits(false);
     };
 
     const fetchPrescriptions = async () => {
-        setLoadingData(true);
+        setLoadingPrescriptions(true);
         try {
             const res = await api.get('/prescriptions/me');
             if (res.data.success) {
-                setPrescriptions(res.data.data.prescriptions);
+                setPrescriptions(res.data.data.prescriptions || []);
             }
         } catch (error) {
             console.error("Failed to fetch prescriptions", error);
+        }
+        setLoadingPrescriptions(false);
+    };
+
+    const fetchAppointments = async () => {
+        setLoadingData(true);
+        try {
+            const res = await api.get('/appointments/me');
+            if (res.data.success) {
+                // Return structure is { appointments, total } for /me endpoint
+                const data = res.data.data;
+                setAppointments(Array.isArray(data) ? data : (data?.appointments || []));
+            }
+        } catch (error) {
+            console.error("Failed to fetch appointments", error);
+            setAppointments([]);
         }
         setLoadingData(false);
     };
@@ -103,19 +122,6 @@ const PatientDashboard = () => {
             }
         } catch (error) {
             console.error("Failed to fetch audit logs", error);
-        }
-        setLoadingData(false);
-    };
-
-    const fetchAppointments = async () => {
-        setLoadingData(true);
-        try {
-            const res = await api.get('/appointments/me');
-            if (res.data.success) {
-                setAppointments(res.data.data.appointments || []);
-            }
-        } catch (error) {
-            console.error('Failed to fetch appointments', error);
         }
         setLoadingData(false);
     };
@@ -315,6 +321,11 @@ const PatientDashboard = () => {
             fetchConsents();
         }
 
+        if (activeTab === 'overview') {
+            fetchVisits();
+            fetchAppointments();
+            fetchPrescriptions();
+        }
         if (activeTab === 'medical-history') {
             fetchVisits();
         }
@@ -335,12 +346,209 @@ const PatientDashboard = () => {
 
     const renderTabContent = () => {
         switch (activeTab) {
+            case 'hipaa-compliance':
+                return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        {/* Header Banner */}
+                        <Card>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
+                                <div style={{ padding: '16px', borderRadius: '50%', backgroundColor: 'rgba(52, 199, 89, 0.12)', color: 'var(--success)', flexShrink: 0 }}>
+                                    <ShieldCheck size={36} />
+                                </div>
+                                <div>
+                                    <h2 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 6px', letterSpacing: '-0.5px' }}>HIPAA Compliance & Your Privacy Rights</h2>
+                                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '15px' }}>
+                                        SecureHealthIMS is built from the ground up to protect your health information. Your data belongs to <strong>you</strong>.
+                                    </p>
+                                </div>
+                            </div>
+                            <div style={{
+                                padding: '16px 20px',
+                                borderRadius: 'var(--radius-lg)',
+                                background: 'linear-gradient(135deg, rgba(52,199,89,0.08) 0%, rgba(0,122,255,0.08) 100%)',
+                                border: '1px solid rgba(52,199,89,0.25)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px'
+                            }}>
+                                <BadgeCheck size={22} style={{ color: 'var(--success)', flexShrink: 0 }} />
+                                <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                                    HIPAA-compliant platform &nbsp;·&nbsp; AES-256 encrypted at rest &nbsp;·&nbsp; TLS 1.3 in transit &nbsp;·&nbsp; Full audit trail on every access
+                                </p>
+                            </div>
+                        </Card>
+
+                        {/* Core Guarantees */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
+                            {[
+                                {
+                                    icon: <EyeOff size={22} />,
+                                    color: 'var(--success)',
+                                    bg: 'rgba(52,199,89,0.1)',
+                                    title: 'Never Sold',
+                                    desc: 'Your health information is never sold, rented, or traded to advertisers, insurers, or any third party — ever.'
+                                },
+                                {
+                                    icon: <Lock size={22} />,
+                                    color: 'var(--accent)',
+                                    bg: 'rgba(0,122,255,0.1)',
+                                    title: 'Access-Restricted',
+                                    desc: 'Only licensed medical professionals directly involved in your care can view your records. Every access is authenticated.'
+                                },
+                                {
+                                    icon: <Eye size={22} />,
+                                    color: 'var(--warning)',
+                                    bg: 'rgba(255,149,0,0.1)',
+                                    title: 'Full Transparency',
+                                    desc: 'Every time someone views your records, it is logged. You can see the complete audit trail in your Audit Logs tab at any time.'
+                                },
+                                {
+                                    icon: <Shield size={22} />,
+                                    color: 'var(--primary)',
+                                    bg: 'var(--primary-glow)',
+                                    title: 'You Are In Control',
+                                    desc: 'You can grant or revoke data sharing consent at any time via Privacy Settings. Revocation takes effect immediately.'
+                                },
+                            ].map(({ icon, color, bg, title, desc }) => (
+                                <Card key={title} padding="20px">
+                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+                                        <div style={{ padding: '10px', borderRadius: '12px', backgroundColor: bg, color, flexShrink: 0 }}>
+                                            {icon}
+                                        </div>
+                                        <div>
+                                            <h4 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: 700 }}>{title}</h4>
+                                            <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>{desc}</p>
+                                        </div>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+
+                        {/* Your HIPAA Rights */}
+                        <Card>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                                <Scale size={22} style={{ color: 'var(--primary)' }} />
+                                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>Your Rights Under HIPAA</h3>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {[
+                                    { right: 'Right to Access', detail: 'You can request a copy of your health records at any time. We provide them within 30 days.' },
+                                    { right: 'Right to Correct', detail: 'If you believe your health information is inaccurate, you can request a correction.' },
+                                    { right: 'Right to Know Who Accessed Your Data', detail: 'You can view the full audit log of everyone who has accessed your health records.' },
+                                    { right: 'Right to Restrict Access', detail: 'You can request that we limit how your health information is used or shared.' },
+                                    { right: 'Right to Revoke Consent', detail: 'You can withdraw your consent for data sharing at any time via Privacy Settings. It takes effect immediately.' },
+                                    { right: 'Right to File a Complaint', detail: 'If you believe your rights have been violated, you can file a complaint with us or with the U.S. Department of Health & Human Services (HHS).' },
+                                ].map(({ right, detail }) => (
+                                    <div key={right} style={{
+                                        padding: '16px',
+                                        backgroundColor: 'var(--bg-secondary)',
+                                        borderRadius: 'var(--radius-md)',
+                                        display: 'flex',
+                                        gap: '14px',
+                                        alignItems: 'flex-start'
+                                    }}>
+                                        <Check size={18} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '2px' }} />
+                                        <div>
+                                            <span style={{ fontWeight: 700, fontSize: '14px', display: 'block', marginBottom: '4px' }}>{right}</span>
+                                            <span style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>{detail}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+
+                        {/* Who Can Access Your Data */}
+                        <Card>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                                <BookOpen size={22} style={{ color: 'var(--accent)' }} />
+                                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>Who Can Access Your Data</h3>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                                {[
+                                    { role: 'Doctors', access: 'Can view your profile, visits, prescriptions, and medical history — only after you grant consent.', allowed: true },
+                                    { role: 'Nurses', access: 'Read-only access to your records for care coordination purposes, with consent required.', allowed: true },
+                                    { role: 'Admins', access: 'Platform administrators can view activity logs for fraud and abuse prevention only.', allowed: true },
+                                    { role: 'Third Parties / Advertisers', access: 'No access. Your data is never shared with advertisers, data brokers, or unrelated companies.', allowed: false },
+                                    { role: 'Insurance Companies', access: 'No automatic sharing. Any sharing requires your explicit written consent.', allowed: false },
+                                ].map(({ role, access, allowed }) => (
+                                    <div key={role} style={{
+                                        padding: '16px',
+                                        borderRadius: 'var(--radius-md)',
+                                        backgroundColor: allowed ? 'rgba(0,122,255,0.05)' : 'rgba(255,59,48,0.05)',
+                                        border: `1px solid ${allowed ? 'rgba(0,122,255,0.15)' : 'rgba(255,59,48,0.15)'}`,
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                            <span style={{ fontWeight: 700, fontSize: '14px' }}>{role}</span>
+                                            <span style={{
+                                                padding: '3px 10px',
+                                                borderRadius: 'var(--radius-full)',
+                                                fontSize: '11px',
+                                                fontWeight: 700,
+                                                textTransform: 'uppercase',
+                                                backgroundColor: allowed ? 'rgba(0,122,255,0.1)' : 'rgba(255,59,48,0.1)',
+                                                color: allowed ? 'var(--accent)' : 'var(--danger)'
+                                            }}>
+                                                {allowed ? 'Conditional' : 'No Access'}
+                                            </span>
+                                        </div>
+                                        <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>{access}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+
+                        {/* Security Measures */}
+                        <Card>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                                <Lock size={22} style={{ color: 'var(--warning)' }} />
+                                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>Technical Security Measures</h3>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+                                {[
+                                    { label: 'Encryption at Rest', value: 'AES-256' },
+                                    { label: 'Encryption in Transit', value: 'TLS 1.3' },
+                                    { label: 'Authentication', value: 'JWT + Supabase Auth' },
+                                    { label: 'Access Control', value: 'Role-Based (RBAC)' },
+                                    { label: 'Audit Logging', value: 'Every access recorded' },
+                                    { label: 'Consent Enforcement', value: 'Middleware-level' },
+                                ].map(({ label, value }) => (
+                                    <div key={label} style={{
+                                        padding: '14px 16px',
+                                        backgroundColor: 'var(--bg-secondary)',
+                                        borderRadius: 'var(--radius-md)',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
+                                        <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{label}</span>
+                                        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>{value}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+
+                        {/* Quick Actions */}
+                        <Card>
+                            <p style={{ margin: '0 0 16px', fontSize: '14px', color: 'var(--text-secondary)' }}>
+                                Questions about your privacy? Take action directly from your dashboard:
+                            </p>
+                            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                                <Button size="sm" onClick={() => setActiveTab('privacy')}>
+                                    <Shield size={15} style={{ marginRight: '6px' }} /> Manage Consent
+                                </Button>
+                                <Button size="sm" variant="secondary" onClick={() => setActiveTab('audit-logs')}>
+                                    <Eye size={15} style={{ marginRight: '6px' }} /> View Audit Logs
+                                </Button>
+                            </div>
+                        </Card>
+                    </div>
+                );
             case 'overview':
                 return (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-                        <Card>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }} className="patient-grid">
+                        <Card className="full-width-mobile">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-                                <div style={{ padding: '12px', borderRadius: '50%', backgroundColor: 'rgba(0, 122, 255, 0.1)', color: 'var(--accent)' }}>
+                                <div className="icon-rounded" style={{ padding: '12px', borderRadius: '50%', backgroundColor: 'rgba(0, 122, 255, 0.1)', color: 'var(--accent)' }}>
                                     <User size={24} />
                                 </div>
                                 <div>
@@ -356,9 +564,9 @@ const PatientDashboard = () => {
                             </div>
                         </Card>
 
-                        <Card>
+                        <Card className="full-width-mobile">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-                                <div style={{ padding: '12px', borderRadius: '50%', backgroundColor: 'rgba(52, 199, 89, 0.1)', color: 'var(--success)' }}>
+                                <div className="icon-rounded" style={{ padding: '12px', borderRadius: '50%', backgroundColor: 'rgba(52, 199, 89, 0.1)', color: 'var(--success)' }}>
                                     <Shield size={24} />
                                 </div>
                                 <div>
@@ -396,14 +604,26 @@ const PatientDashboard = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
                                 <div style={{ padding: '12px', borderRadius: '50%', backgroundColor: 'rgba(255, 59, 48, 0.1)', color: 'var(--danger)' }}>
                                     <FileText size={24} />
+                                    <Shield size={24} />
                                 </div>
                                 <div>
-                                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>Medical History</h3>
-                                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14px' }}>View recent visits</p>
+                                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>Upcoming Appointments</h3>
+                                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14px' }}>
+                                        {appointments.filter(a => a.status === 'Pending' || a.status === 'Confirmed' || a.status === 'scheduled').length} scheduled
+                                    </p>
                                 </div>
                             </div>
+                            {appointments.filter(a => a.status === 'Pending' || a.status === 'Confirmed' || a.status === 'scheduled').slice(0, 2).map(apt => (
+                                <div key={apt.id} style={{ padding: '8px', marginBottom: '8px', borderLeft: '3px solid var(--warning)', backgroundColor: 'rgba(0,0,0,0.02)' }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 600 }}>{new Date(apt.date).toLocaleDateString()}</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                        Dr. {apt.doctor?.name || 'Doctor'} 
+                                        {apt.doctor?.specialization && <span style={{ opacity: 0.8, fontSize: '11px' }}> • {apt.doctor.specialization}</span>}
+                                    </div>
+                                </div>
+                            ))}
                             <Button variant="secondary" size="sm" onClick={() => setActiveTab('medical-history')} style={{ marginTop: '8px', width: '100%' }}>
-                                View History
+                                View All
                             </Button>
                         </Card>
 
@@ -831,7 +1051,7 @@ const PatientDashboard = () => {
                         <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '24px', display: 'flex', alignItems: 'center' }}>
                             <FileText size={24} style={{ marginRight: '10px', color: 'var(--accent)' }} /> Medical History
                         </h2>
-                        {loadingData ? (
+                        {loadingVisits ? (
                             <p>Loading visits...</p>
                         ) : visits.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-tertiary)' }}>
@@ -854,6 +1074,8 @@ const PatientDashboard = () => {
                                                 </h4>
                                                 <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                                                     Dr. {visit.doctor?.name || 'Unknown'}{visit.doctor?.specialization ? ` · ${visit.doctor.specialization}` : ''}
+                                                    Dr. {visit.doctors?.name || 'Doctor'}
+                                                    {visit.doctors?.specialization && <span style={{ opacity: 0.8, fontSize: '12px' }}> • {visit.doctors.specialization}</span>}
                                                 </span>
                                             </div>
                                             <span style={{ fontSize: '13px', padding: '4px 12px', borderRadius: '12px', backgroundColor: 'rgba(0,0,0,0.05)', height: 'fit-content' }}>
@@ -957,7 +1179,7 @@ const PatientDashboard = () => {
                         <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '24px', display: 'flex', alignItems: 'center' }}>
                             <Pill size={24} style={{ marginRight: '10px', color: 'var(--success)' }} /> Prescriptions
                         </h2>
-                        {loadingData ? (
+                        {loadingPrescriptions ? (
                             <p>Loading prescriptions...</p>
                         ) : prescriptions.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-tertiary)' }}>
@@ -980,7 +1202,8 @@ const PatientDashboard = () => {
                                             <div>
                                                 <h4 style={{ margin: '0 0 2px 0', fontSize: '16px', fontWeight: 600 }}>{presc.medication_name}</h4>
                                                 <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                                                    Dr. {presc.users?.name || 'Unknown'}{presc.users?.specialization ? ` · ${presc.users.specialization}` : ''}
+                                                    Dr. {presc.doctors?.name || presc.users?.name || 'Doctor'}
+                                                    {(presc.doctors?.specialization || presc.users?.specialization) && <span style={{ opacity: 0.8, fontSize: '11px' }}> • {presc.doctors?.specialization || presc.users?.specialization}</span>}
                                                 </span>
                                             </div>
                                         </div>
@@ -1011,6 +1234,9 @@ const PatientDashboard = () => {
                     </Card>
                 );
 
+            case 'audit-logs':
+                return <AuditLogs />;
+
             default:
                 return null;
         }
@@ -1019,7 +1245,7 @@ const PatientDashboard = () => {
     return (
         <div style={{ minHeight: '100vh', position: 'relative' }}>
             <Navbar />
-            <div className="animate-fade-in" style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px' }}>
+            <div className="animate-fade-in dashboard-container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px' }}>
                 <header style={{ marginBottom: '48px' }}>
                     <div style={{
                         display: 'inline-block',
@@ -1035,13 +1261,13 @@ const PatientDashboard = () => {
                     }}>
                         Patient Portal
                     </div>
-                    <h1 className="title-font" style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '12px', letterSpacing: '-1.5px' }}>
+                    <h1 className="title-font dashboard-title" style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '12px', letterSpacing: '-1.5px' }}>
                         Welcome back, <span style={{ color: 'var(--primary)' }}>{user?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}</span>
                     </h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Manage your health profile, consultation history, and privacy settings.</p>
                 </header>
 
-                <div style={{
+                <div className="tab-navigation" style={{
                     display: 'flex',
                     gap: '12px',
                     marginBottom: '40px',
@@ -1051,9 +1277,11 @@ const PatientDashboard = () => {
                     borderRadius: 'var(--radius-full)',
                     border: '1px solid var(--glass-stroke)',
                     width: 'fit-content',
-                    backdropFilter: 'blur(20px)'
+                    backdropFilter: 'blur(20px)',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
                 }}>
-                    {['overview', 'medical-history', 'prescriptions', 'appointments', 'profile', 'privacy', 'audit', 'book-appointment'].map(tab => (
+                    {['overview', 'medical-history', 'prescriptions', 'appointments', 'book-appointment', 'profile', 'privacy', 'audit', 'audit-logs', 'hipaa-compliance'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -1065,10 +1293,11 @@ const PatientDashboard = () => {
                                 color: activeTab === tab ? 'white' : 'var(--text-secondary)',
                                 fontWeight: 700,
                                 fontSize: '14px',
-                                cursor: 'none',
+                                cursor: 'pointer',
                                 transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
                                 textTransform: 'uppercase',
-                                letterSpacing: '0.5px'
+                                letterSpacing: '0.5px',
+                                whiteSpace: 'nowrap'
                             }}
                             className="hover-scale"
                         >
@@ -1089,6 +1318,32 @@ const PatientDashboard = () => {
                     </motion.div>
                 </AnimatePresence>
             </div>
+            <style>{`
+                @media (max-width: 768px) {
+                    .dashboard-title {
+                        font-size: 2.2rem !important;
+                        letter-spacing: -1px !important;
+                    }
+                    .dashboard-container {
+                        padding: 24px 16px !important;
+                    }
+                    .tab-navigation {
+                        width: 100% !important;
+                        border-radius: 16px !important;
+                        padding: 12px 0 !important;
+                    }
+                    .tab-navigation::-webkit-scrollbar {
+                        display: none;
+                    }
+                    .patient-grid {
+                        grid-template-columns: 1fr !important;
+                        gap: 16px !important;
+                    }
+                    .full-width-mobile {
+                        width: 100% !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 };
