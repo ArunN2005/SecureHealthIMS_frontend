@@ -65,11 +65,14 @@ function App() {
     <Router>
       <CustomCursor />
       <Routes>
+        {/* Core Auth Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
+        {/* Dynamic Home Redirector based on User Role */}
         <Route path="/" element={<Home />} />
 
+        {/* Admin Specific Views */}
         <Route
           path="/admin"
           element={
