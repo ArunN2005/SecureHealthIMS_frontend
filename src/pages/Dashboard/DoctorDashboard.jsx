@@ -6,6 +6,7 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { User, Calendar, Clock, Edit2, Save, X, Briefcase, Pill, Stethoscope, ChevronRight, Search } from 'lucide-react';
+// eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from 'framer-motion';
 
 const DoctorDashboard = () => {
@@ -90,7 +91,6 @@ const DoctorDashboard = () => {
         if (activeTab === 'appointments' || activeTab === 'overview') {
             fetchAppointments();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab]);
 
     // Search Debounce
@@ -104,7 +104,6 @@ const DoctorDashboard = () => {
         }, 500);
 
         return () => clearTimeout(delayDebounceFn);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery, activeTab]);
 
     const handleEditChange = (e) => {

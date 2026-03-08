@@ -6,6 +6,7 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { User, Edit2, Save, X, Shield, Check, AlertCircle, FileText, Pill } from 'lucide-react';
+// eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from 'framer-motion';
 import PatientRegistrationModal from '../../components/patient/PatientRegistrationModal';
 
@@ -228,7 +229,6 @@ const PatientDashboard = () => {
     // Check registration status on mount
     useEffect(() => {
         checkRegistrationStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Fetch consents when tab is active
@@ -243,7 +243,6 @@ const PatientDashboard = () => {
         if (activeTab === 'prescriptions') {
             fetchPrescriptions();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab]);
 
     const renderTabContent = () => {
