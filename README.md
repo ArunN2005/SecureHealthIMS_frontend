@@ -1,16 +1,110 @@
-# React + Vite
+# SecureHealthIMS Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern healthcare information management system frontend built with React 19 and Vite.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 19.2.0 | UI Framework |
+| Vite | 7.3.1 | Build Tool |
+| React Router | 7.13.0 | Client-side Routing |
+| Axios | 1.13.5 | HTTP Client |
+| Framer Motion | 12.34.0 | Animations |
+| Lucide React | 0.563.0 | Icons |
 
-## React Compiler
+## Live Demo
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Production:** https://secure-health-ims-frontend.vercel.app/
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Prerequisites
+
+- Node.js 20+
+- npm 9+
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/avkbsurya119/SecureHealthIMS_frontend.git
+
+# Install dependencies
+cd SecureHealthIMS_frontend
+npm install
+
+# Create environment file
+cp .env.example .env
+
+# Start development server
+npm run dev
+```
+
+### Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `VITE_API_URL` | Backend API URL | `http://localhost:3000` |
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run lint` | Run ESLint |
+| `npm run preview` | Preview production build |
+
+## Project Structure
+
+```
+src/
+├── api/           # Axios configuration
+├── assets/        # Static assets
+├── components/    # Reusable UI components
+│   ├── layout/    # Layout components (Navbar, etc.)
+│   └── ui/        # UI primitives (Button, Card, etc.)
+├── context/       # React context providers
+├── pages/         # Route-based pages
+│   ├── Auth/      # Login, Register
+│   └── Dashboard/ # Role-based dashboards
+├── App.jsx        # Root component
+└── main.jsx       # Entry point
+```
+
+## Features
+
+- Role-based dashboards (Admin, Doctor, Patient)
+- Patient search and management
+- Appointment scheduling
+- Medical records management
+- Consent management
+- Dark/Light theme support
+- Responsive design
+
+## CI/CD Pipeline
+
+The project uses GitHub Actions for CI and Vercel for CD.
+
+| Stage | Tool | Status |
+|-------|------|--------|
+| Lint | ESLint | Required |
+| Build | Vite | Required |
+| Security | npm audit | Warning |
+| Deploy | Vercel | Auto on main |
+
+## Security
+
+- JWT-based authentication
+- Role-based access control
+- Secure HTTP headers via Vercel config
+- HTTPS enforced
+
+## Related
+
+- [Backend Repository](https://github.com/avkbsurya119/SecureHealthIMS_backend)
+
+## License
+
+MIT
