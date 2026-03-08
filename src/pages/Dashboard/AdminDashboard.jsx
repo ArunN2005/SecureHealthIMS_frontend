@@ -5,7 +5,7 @@ import Tabs from '../../components/ui/Tabs';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { Moon, Sun, LogOut, User, LayoutDashboard, Stethoscope, Search } from 'lucide-react';
+import { User, LayoutDashboard, Stethoscope } from 'lucide-react';
 
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
