@@ -5,9 +5,11 @@ import Navbar from '../../components/layout/Navbar';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { User, Activity, Settings, Edit2, Save, X, Shield, Check, AlertCircle, Calendar, Clock, Search, MapPin, Award, FileText, Pill } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { User, Edit2, Save, X, Shield, Check, AlertCircle, FileText, Pill } from 'lucide-react';
+// eslint-disable-next-line no-unused-vars
+import { AnimatePresence, motion } from 'framer-motion';
 import PatientRegistrationModal from '../../components/patient/PatientRegistrationModal';
+import AuditLogs from '../../components/audit/AuditLogs';
 
 const PatientDashboard = () => {
     const { user, updateProfile } = useAuth();
@@ -36,7 +38,6 @@ const PatientDashboard = () => {
     });
 
     // Consents State
-    const [consents, setConsents] = useState([]);
     const [loadingConsents, setLoadingConsents] = useState(false);
     const [isSharingData, setIsSharingData] = useState(false);
 
@@ -59,25 +60,6 @@ const PatientDashboard = () => {
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
-
-    // Check registration status on mount
-    useEffect(() => {
-        checkRegistrationStatus();
-    }, []);
-
-    // Fetch consents when tab is active
-    useEffect(() => {
-        if (activeTab === 'privacy') {
-            fetchConsents();
-        }
-
-        if (activeTab === 'medical-history') {
-            fetchVisits();
-        }
-        if (activeTab === 'prescriptions') {
-            fetchPrescriptions();
-        }
-    }, [activeTab]);
 
     const fetchVisits = async () => {
         setLoadingData(true);
@@ -114,15 +96,14 @@ const PatientDashboard = () => {
         try {
             const res = await api.get('/consent/me');
             if (res.data.success) {
-                setConsents(res.data.data.consents);
                 // Check if 'medical_records' or 'data_sharing' is granted to determine the toggle state
                 const hasConsent = res.data.data.consents.some(
                     c => (c.consent_type === 'medical_records' || c.consent_type === 'data_sharing') && c.status === 'granted'
                 );
                 setIsSharingData(hasConsent);
             }
-        } catch (error) {
-            console.error("Failed to fetch consents", error);
+        } catch (err) {
+            console.error("Failed to fetch consents", err);
         }
         setLoadingConsents(false);
     };
@@ -182,7 +163,7 @@ const PatientDashboard = () => {
             if (res.data.success && (res.data.data.user || res.data.data.id)) {
                 setIsRegistered(true);
             }
-        } catch (error) {
+        } catch {
             console.log('User not registered in users table yet');
             setIsRegistered(false);
 
@@ -245,6 +226,28 @@ const PatientDashboard = () => {
         }
         setLoading(false);
     };
+
+    // Check registration status on mount
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        checkRegistrationStatus();
+    }, []);
+
+    // Fetch consents when tab is active
+    useEffect(() => {
+        /* eslint-disable react-hooks/set-state-in-effect */
+        if (activeTab === 'privacy') {
+            fetchConsents();
+        }
+
+        if (activeTab === 'medical-history') {
+            fetchVisits();
+        }
+        if (activeTab === 'prescriptions') {
+            fetchPrescriptions();
+        }
+        /* eslint-enable react-hooks/set-state-in-effect */
+    }, [activeTab]);
 
     const renderTabContent = () => {
         switch (activeTab) {
@@ -714,6 +717,9 @@ const PatientDashboard = () => {
                     </Card>
                 );
 
+            case 'audit-logs':
+                return <AuditLogs />;
+
             default:
                 return null;
         }
@@ -756,7 +762,7 @@ const PatientDashboard = () => {
                     width: 'fit-content',
                     backdropFilter: 'blur(20px)'
                 }}>
-                    {['overview', 'medical-history', 'prescriptions', 'profile', 'privacy'].map(tab => (
+                    {['overview', 'medical-history', 'prescriptions', 'profile', 'privacy', 'audit-logs'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}

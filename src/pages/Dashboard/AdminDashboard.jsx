@@ -5,7 +5,8 @@ import Tabs from '../../components/ui/Tabs';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { Moon, Sun, LogOut, User, LayoutDashboard, Stethoscope, Search } from 'lucide-react';
+import { User, LayoutDashboard, Stethoscope } from 'lucide-react';
+import AuditLogs from '../../components/audit/AuditLogs';
 
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
@@ -36,7 +37,7 @@ const AdminDashboard = () => {
             await api.post(`/admin/approve/${id}`);
             alert('Doctor approved successfully');
             fetchUsers(); // Refresh list
-        } catch (err) {
+        } catch {
             alert('Failed to approve doctor');
         }
     };
@@ -137,6 +138,7 @@ const AdminDashboard = () => {
         { id: 'doctors', label: 'Doctors', content: <DoctorTabContent /> },
         { id: 'patients', label: 'Patients', content: <UserList list={patients} showActions={true} /> },
         { id: 'nurses', label: 'Nurses', content: <UserList list={nurses} showActions={true} /> },
+        { id: 'audit-logs', label: 'Audit Logs', content: <AuditLogs isAdmin={true} /> },
     ];
 
     if (loading) return <div style={{ padding: '24px' }}>Loading...</div>;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useThemeContext } from '../../context/ThemeContext';
-import { Moon, Sun, LogOut, User, LayoutDashboard, Stethoscope } from 'lucide-react';
+import { Moon, Sun, LogOut, LayoutDashboard, Stethoscope } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
