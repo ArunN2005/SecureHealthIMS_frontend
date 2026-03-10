@@ -81,6 +81,36 @@ const AuditLogs = ({ isAdmin = false }) => {
         return new Date(dateString).toLocaleString();
     };
 
+    const formatConversationalLog = (log) => {
+        const role = log.details?.role ? log.details.role.charAt(0).toUpperCase() + log.details.role.slice(1) : 'Staff member';
+        const name = log.user_name || 'Someone';
+        const action = log.action === 'READ' ? 'viewed' : log.action === 'CREATE' ? 'created' : log.action === 'UPDATE' ? 'updated' : log.action === 'DELETE' ? 'deleted' : log.action.toLowerCase();
+        
+        let target = 'your data';
+        switch (log.resource) {
+            case 'patient_profile':
+                target = 'your profile';
+                break;
+            case 'medical_records_list':
+                target = 'your medical records';
+                break;
+            case 'medical_record_detail':
+                target = 'a specific medical record of yours';
+                break;
+            case 'prescriptions_list':
+                target = 'your prescriptions';
+                break;
+            case 'prescription_detail':
+                target = 'a specific prescription of yours';
+                break;
+            case 'appointment':
+                target = 'an appointment for you';
+                break;
+        }
+
+        return `${role} ${name} ${action} ${target}.`;
+    };
+
     if (loading && logs.length === 0) {
         return (
             <Card>
@@ -129,70 +159,68 @@ const AuditLogs = ({ isAdmin = false }) => {
                                 border: '1px solid var(--border)'
                             }}>
                                 <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                                    <Clock size={12} style={{ display: 'inline', marginRight: '4px', position: 'relative', top: '-1px' }} />
                                     {formatDate(access.created_at)}
                                 </div>
-                                <div style={{ fontSize: '14px', fontWeight: 500 }}>
-                                    {access.action} - {access.resource}
+                                <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>
+                                    {formatConversationalLog(access)}
                                 </div>
-                                {access.user_name && (
-                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                                        By: {access.user_name}
-                                    </div>
-                                )}
                             </div>
                         ))}
                     </div>
                 </Card>
             )}
 
-            {/* Filters */}
-            <Card>
-                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
-                    <Filter size={20} style={{ marginRight: '8px' }} />
-                    Filters
-                </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', alignItems: 'end' }}>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 500 }}>
-                            Action Type
-                        </label>
-                        <select
-                            value={filters.action}
-                            onChange={(e) => handleFilterChange('action', e.target.value)}
-                            style={{
-                                width: '100%',
-                                padding: '12px 16px',
-                                borderRadius: 'var(--radius-md)',
-                                border: '1px solid var(--border)',
-                                backgroundColor: 'var(--bg-secondary)',
-                                color: 'var(--text-primary)',
-                                fontSize: '14px'
-                            }}
-                        >
-                            <option value="">All Actions</option>
-                            <option value="READ">Read</option>
-                            <option value="CREATE">Create</option>
-                            <option value="UPDATE">Update</option>
-                            <option value="DELETE">Delete</option>
-                        </select>
+            {/* Filters (Admin Only) */}
+            {isAdmin && (
+                <Card>
+                    <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
+                        <Filter size={20} style={{ marginRight: '8px' }} />
+                        Filters
+                    </h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', alignItems: 'end' }}>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 500 }}>
+                                Action Type
+                            </label>
+                            <select
+                                value={filters.action}
+                                onChange={(e) => handleFilterChange('action', e.target.value)}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    borderRadius: 'var(--radius-md)',
+                                    border: '1px solid var(--border)',
+                                    backgroundColor: 'var(--bg-secondary)',
+                                    color: 'var(--text-primary)',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                <option value="">All Actions</option>
+                                <option value="READ">Read</option>
+                                <option value="CREATE">Create</option>
+                                <option value="UPDATE">Update</option>
+                                <option value="DELETE">Delete</option>
+                            </select>
+                        </div>
+                        <Input
+                            label="From Date"
+                            type="date"
+                            value={filters.from_date}
+                            onChange={(e) => handleFilterChange('from_date', e.target.value)}
+                        />
+                        <Input
+                            label="To Date"
+                            type="date"
+                            value={filters.to_date}
+                            onChange={(e) => handleFilterChange('to_date', e.target.value)}
+                        />
+                        <Button onClick={() => setFilters({ action: '', from_date: '', to_date: '', limit: 50, offset: 0 })}>
+                            Clear Filters
+                        </Button>
                     </div>
-                    <Input
-                        label="From Date"
-                        type="date"
-                        value={filters.from_date}
-                        onChange={(e) => handleFilterChange('from_date', e.target.value)}
-                    />
-                    <Input
-                        label="To Date"
-                        type="date"
-                        value={filters.to_date}
-                        onChange={(e) => handleFilterChange('to_date', e.target.value)}
-                    />
-                    <Button onClick={() => setFilters({ action: '', from_date: '', to_date: '', limit: 50, offset: 0 })}>
-                        Clear Filters
-                    </Button>
-                </div>
-            </Card>
+                </Card>
+            )}
 
             {/* Audit Logs List */}
             <Card>
@@ -220,57 +248,70 @@ const AuditLogs = ({ isAdmin = false }) => {
                                 backgroundColor: 'var(--bg-secondary)',
                                 borderRadius: 'var(--radius-md)',
                                 border: '1px solid var(--border)',
-                                display: 'grid',
-                                gridTemplateColumns: 'auto 1fr auto',
+                                display: isAdmin ? 'grid' : 'flex',
+                                gridTemplateColumns: isAdmin ? 'auto 1fr auto' : 'none',
+                                flexDirection: isAdmin ? 'row' : 'column',
                                 gap: '16px',
-                                alignItems: 'center'
+                                alignItems: isAdmin ? 'center' : 'flex-start'
                             }}>
-                                {/* Action Badge */}
-                                <div style={{
-                                    padding: '6px 12px',
-                                    borderRadius: 'var(--radius-full)',
-                                    backgroundColor: `${getActionColor(log.action)}20`,
-                                    color: getActionColor(log.action),
-                                    fontSize: '12px',
-                                    fontWeight: 600,
-                                    textAlign: 'center',
-                                    minWidth: '70px'
-                                }}>
-                                    {log.action}
-                                </div>
-
-                                {/* Log Details */}
-                                <div>
-                                    <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>
-                                        {log.resource} {log.resource_id && `(${log.resource_id})`}
-                                    </div>
-                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <Clock size={12} />
-                                            {formatDate(log.created_at)}
-                                        </span>
-                                        {isAdmin && log.user_name && (
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                <User size={12} />
-                                                {log.user_name}
-                                            </span>
-                                        )}
-                                        {log.patient_name && (
-                                            <span>Patient: {log.patient_name}</span>
-                                        )}
-                                    </div>
-                                    {log.details && (
-                                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                                            {log.details.method && `Method: ${log.details.method}`}
-                                            {log.details.path && ` | Path: ${log.details.path}`}
+                                {/* Admin Technical View */}
+                                {isAdmin ? (
+                                    <>
+                                        {/* Action Badge */}
+                                        <div style={{
+                                            padding: '6px 12px',
+                                            borderRadius: 'var(--radius-full)',
+                                            backgroundColor: `${getActionColor(log.action)}20`,
+                                            color: getActionColor(log.action),
+                                            fontSize: '12px',
+                                            fontWeight: 600,
+                                            textAlign: 'center',
+                                            minWidth: '70px'
+                                        }}>
+                                            {log.action}
                                         </div>
-                                    )}
-                                </div>
 
-                                {/* IP Address */}
-                                {isAdmin && log.ip_address && (
-                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', textAlign: 'right' }}>
-                                        IP: {log.ip_address}
+                                        {/* Log Details */}
+                                        <div>
+                                            <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>
+                                                {log.resource} {log.resource_id && `(${log.resource_id})`}
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <Clock size={12} />
+                                                    {formatDate(log.created_at)}
+                                                </span>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <User size={12} />
+                                                    {log.user_name || log.user_id}
+                                                </span>
+                                                {log.patient_name && (
+                                                    <span>Patient: {log.patient_name}</span>
+                                                )}
+                                            </div>
+                                            {log.details && (
+                                                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                                                    {log.details.method && `Method: ${log.details.method}`}
+                                                    {log.details.path && ` | Path: ${log.details.path}`}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* IP Address */}
+                                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', textAlign: 'right' }}>
+                                            IP: {log.ip_address}
+                                        </div>
+                                    </>
+                                ) : (
+                                    /* Patient Conversational View */
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <div style={{ fontSize: '16px', fontWeight: 500, color: 'var(--text-primary)' }}>
+                                            {formatConversationalLog(log)}
+                                        </div>
+                                        <div style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <Clock size={14} />
+                                            {formatDate(log.created_at)}
+                                        </div>
                                     </div>
                                 )}
                             </div>

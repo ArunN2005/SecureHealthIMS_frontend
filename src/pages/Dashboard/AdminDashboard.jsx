@@ -7,6 +7,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { User, LayoutDashboard, Stethoscope } from 'lucide-react';
 import AuditLogs from '../../components/audit/AuditLogs';
+import IncidentLogs from '../../components/audit/IncidentLogs';
 
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
@@ -58,6 +59,16 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleApproveNurse = async (id) => {
+        try {
+            await api.post(`/admin/approve-nurse/${id}`);
+            alert('Nurse approved successfully');
+            fetchUsers(); // Refresh list
+        } catch {
+            alert('Failed to approve nurse');
+        }
+    };
+
     const handleBan = async (id, role, action) => {
         // action: 'ban' or 'unban'
         const verb = action === 'ban' ? 'ban' : 'unban';
@@ -99,12 +110,21 @@ const AdminDashboard = () => {
                             <span style={{ marginRight: '12px' }}>Role: {user.role}</span>
 
                             {/* Status based on verified flag as requested */}
-                            <span style={{
-                                color: user.verified ? 'var(--success)' : 'var(--danger)',
-                                fontWeight: 500
-                            }}>
-                                Status: {user.verified ? 'Unbanned' : 'Banned'}
-                            </span>
+                            {user.role === 'nurse' ? (
+                                <span style={{
+                                    color: user.isverified ? 'var(--danger)' : 'var(--success)',
+                                    fontWeight: 500
+                                }}>
+                                    Status: {user.isverified ? 'Banned (Pending)' : 'Approved'}
+                                </span>
+                            ) : (
+                                <span style={{
+                                    color: user.verified ? 'var(--success)' : 'var(--danger)',
+                                    fontWeight: 500
+                                }}>
+                                    Status: {user.verified ? 'Unbanned' : 'Banned'}
+                                </span>
+                            )}
 
                             {/* Patient Consent */}
                             {user.role === 'patient' && (
@@ -122,6 +142,11 @@ const AdminDashboard = () => {
                             {/* Doctor Approval (Only for unverified doctors) */}
                             {user.role === 'doctor' && !user.verified && (
                                 <Button size="sm" onClick={() => handleApprove(user.id)}>Approve</Button>
+                            )}
+                            
+                            {/* Nurse Approval */}
+                            {user.role === 'nurse' && user.isverified && (
+                                <Button size="sm" onClick={() => handleApproveNurse(user.id)}>Approve</Button>
                             )}
 
                             {/* Ban/Unban Buttons based on verified status */}
@@ -190,6 +215,7 @@ const AdminDashboard = () => {
         { id: 'patients', label: 'Patients', content: <UserList list={patients} showActions={true} /> },
         { id: 'nurses', label: 'Nurses', content: <UserList list={nurses} showActions={true} /> },
         { id: 'audit-logs', label: 'Audit Logs', content: <AuditLogs isAdmin={true} /> },
+        { id: 'incident-logs', label: 'Incident Logs', content: <IncidentLogs /> },
         { id: 'security', label: 'Security', content: <SecurityTab /> },
     ];
 
