@@ -13,6 +13,8 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+    const [securityAssumptions, setSecurityAssumptions] = useState(null);
+    const [loadingSecurity, setLoadingSecurity] = useState(false);
 
     const fetchUsers = async () => {
         try {
@@ -31,6 +33,20 @@ const AdminDashboard = () => {
     useEffect(() => {
         fetchUsers();
     }, []);
+
+    const fetchSecurityAssumptions = async () => {
+        setLoadingSecurity(true);
+        try {
+            const res = await api.get('/admin/security-assumptions');
+            if (res.data.success) {
+                setSecurityAssumptions(res.data.data);
+            }
+        } catch (err) {
+            console.error('Failed to fetch security assumptions:', err);
+        } finally {
+            setLoadingSecurity(false);
+        }
+    };
 
     const handleApprove = async (id) => {
         try {
@@ -134,11 +150,47 @@ const AdminDashboard = () => {
         </div>
     );
 
+    const SecurityTab = () => (
+        <div>
+            <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: 'var(--primary)' }}>Security Assumptions & Documentation</h3>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                    Review the system's security assumptions and compliance documentation.
+                </p>
+                <Button
+                    onClick={fetchSecurityAssumptions}
+                    disabled={loadingSecurity}
+                    style={{ marginBottom: '16px' }}
+                >
+                    {loadingSecurity ? 'Loading...' : 'Load Security Documentation'}
+                </Button>
+                {securityAssumptions && (
+                    <Card padding="24px">
+                        <pre style={{
+                            whiteSpace: 'pre-wrap',
+                            fontFamily: 'monospace',
+                            fontSize: '14px',
+                            color: 'var(--text-primary)',
+                            background: 'var(--bg-secondary)',
+                            padding: '16px',
+                            borderRadius: '8px',
+                            overflow: 'auto',
+                            maxHeight: '600px'
+                        }}>
+                            {securityAssumptions}
+                        </pre>
+                    </Card>
+                )}
+            </div>
+        </div>
+    );
+
     const tabs = [
         { id: 'doctors', label: 'Doctors', content: <DoctorTabContent /> },
         { id: 'patients', label: 'Patients', content: <UserList list={patients} showActions={true} /> },
         { id: 'nurses', label: 'Nurses', content: <UserList list={nurses} showActions={true} /> },
         { id: 'audit-logs', label: 'Audit Logs', content: <AuditLogs isAdmin={true} /> },
+        { id: 'security', label: 'Security', content: <SecurityTab /> },
     ];
 
     if (loading) return <div style={{ padding: '24px' }}>Loading...</div>;
