@@ -115,7 +115,6 @@ const DoctorDashboard = () => {
 
     useEffect(() => {
         if (activeTab === 'appointments' || activeTab === 'overview') {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             fetchAppointments();
         }
     }, [activeTab]);

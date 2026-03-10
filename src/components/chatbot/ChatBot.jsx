@@ -24,15 +24,8 @@ const ChatBot = () => {
     const audioChunksRef = useRef([]);
     const recordingTimerRef = useRef(null);
 
-    // Don't render if not logged in
-    if (!user) return null;
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
-
     useEffect(() => {
-        scrollToBottom();
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isLoading]);
 
     useEffect(() => {
@@ -65,6 +58,9 @@ const ChatBot = () => {
         },
         [navigate]
     );
+
+    // Don't render if not logged in (after all hooks)
+    if (!user) return null;
 
     // Simple markdown-to-HTML renderer
     const renderMarkdown = (text) => {
