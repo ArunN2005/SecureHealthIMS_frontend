@@ -251,7 +251,28 @@ const PatientDashboard = () => {
 
     const renderTabContent = () => {
         switch (activeTab) {
-            case 'overview':
+            case 'hipaa-compliance':
+                return (
+                    <Card>
+                        <div style={{ marginBottom: '24px' }}>
+                            <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--primary)', marginBottom: '12px' }}>HIPAA Compliance & Data Usage Policy</h2>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '16px', marginBottom: '16px' }}>
+                                Our platform is fully compliant with HIPAA regulations. Your health data is protected by industry-standard security measures, including encryption, access controls, and audit logging. <br /><br />
+                                <strong>Data Usage Policy:</strong> <br />
+                                - Your data will <strong>never</strong> be shared with third parties without your explicit consent.<br />
+                                - All access to your records is logged and monitored.<br />
+                                - You can review, update, or revoke your consent for data sharing at any time.<br />
+                                - Only authorized medical professionals can access your data for treatment purposes.<br />
+                                - We enforce strict privacy controls and regularly review our security practices.<br /><br />
+                                For detailed information, please review our full privacy policy or contact our support team.
+                            </p>
+                            <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '8px', fontSize: '15px', color: 'var(--text-primary)' }}>
+                                <strong>Summary:</strong> <br />
+                                We are committed to protecting your privacy. Your health information is never sold, shared, or used for purposes other than your care and platform operations. All data usage is governed by HIPAA and our internal policies.
+                            </div>
+                        </div>
+                    </Card>
+                );
                 return (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
                         <Card>
@@ -762,7 +783,7 @@ const PatientDashboard = () => {
                     width: 'fit-content',
                     backdropFilter: 'blur(20px)'
                 }}>
-                    {['overview', 'medical-history', 'prescriptions', 'profile', 'privacy', 'audit-logs'].map(tab => (
+                    {['overview', 'medical-history', 'prescriptions', 'profile', 'privacy', 'audit-logs', 'hipaa-compliance'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -774,7 +795,7 @@ const PatientDashboard = () => {
                                 color: activeTab === tab ? 'white' : 'var(--text-secondary)',
                                 fontWeight: 700,
                                 fontSize: '14px',
-                                cursor: 'none',
+                                cursor: 'pointer',
                                 transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.5px'
