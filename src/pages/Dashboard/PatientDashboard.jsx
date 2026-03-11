@@ -6,7 +6,7 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
-import { User, Edit2, Save, X, Shield, Check, AlertCircle, FileText, Pill } from 'lucide-react';
+import { User, Edit2, Save, X, Shield, Check, AlertCircle, FileText, Pill, Lock, Eye, EyeOff, ShieldCheck, BadgeCheck, BookOpen, Scale } from 'lucide-react';
 // eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from 'framer-motion';
 import PatientRegistrationModal from '../../components/patient/PatientRegistrationModal';
@@ -345,25 +345,200 @@ const PatientDashboard = () => {
         switch (activeTab) {
             case 'hipaa-compliance':
                 return (
-                    <Card>
-                        <div style={{ marginBottom: '24px' }}>
-                            <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--primary)', marginBottom: '12px' }}>HIPAA Compliance & Data Usage Policy</h2>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: '16px', marginBottom: '16px' }}>
-                                Our platform is fully compliant with HIPAA regulations. Your health data is protected by industry-standard security measures, including encryption, access controls, and audit logging. <br /><br />
-                                <strong>Data Usage Policy:</strong> <br />
-                                - Your data will <strong>never</strong> be shared with third parties without your explicit consent.<br />
-                                - All access to your records is logged and monitored.<br />
-                                - You can review, update, or revoke your consent for data sharing at any time.<br />
-                                - Only authorized medical professionals can access your data for treatment purposes.<br />
-                                - We enforce strict privacy controls and regularly review our security practices.<br /><br />
-                                For detailed information, please review our full privacy policy or contact our support team.
-                            </p>
-                            <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '8px', fontSize: '15px', color: 'var(--text-primary)' }}>
-                                <strong>Summary:</strong> <br />
-                                We are committed to protecting your privacy. Your health information is never sold, shared, or used for purposes other than your care and platform operations. All data usage is governed by HIPAA and our internal policies.
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        {/* Header Banner */}
+                        <Card>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
+                                <div style={{ padding: '16px', borderRadius: '50%', backgroundColor: 'rgba(52, 199, 89, 0.12)', color: 'var(--success)', flexShrink: 0 }}>
+                                    <ShieldCheck size={36} />
+                                </div>
+                                <div>
+                                    <h2 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 6px', letterSpacing: '-0.5px' }}>HIPAA Compliance & Your Privacy Rights</h2>
+                                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '15px' }}>
+                                        SecureHealthIMS is built from the ground up to protect your health information. Your data belongs to <strong>you</strong>.
+                                    </p>
+                                </div>
                             </div>
+                            <div style={{
+                                padding: '16px 20px',
+                                borderRadius: 'var(--radius-lg)',
+                                background: 'linear-gradient(135deg, rgba(52,199,89,0.08) 0%, rgba(0,122,255,0.08) 100%)',
+                                border: '1px solid rgba(52,199,89,0.25)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px'
+                            }}>
+                                <BadgeCheck size={22} style={{ color: 'var(--success)', flexShrink: 0 }} />
+                                <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                                    HIPAA-compliant platform &nbsp;·&nbsp; AES-256 encrypted at rest &nbsp;·&nbsp; TLS 1.3 in transit &nbsp;·&nbsp; Full audit trail on every access
+                                </p>
+                            </div>
+                        </Card>
+
+                        {/* Core Guarantees */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
+                            {[
+                                {
+                                    icon: <EyeOff size={22} />,
+                                    color: 'var(--success)',
+                                    bg: 'rgba(52,199,89,0.1)',
+                                    title: 'Never Sold',
+                                    desc: 'Your health information is never sold, rented, or traded to advertisers, insurers, or any third party — ever.'
+                                },
+                                {
+                                    icon: <Lock size={22} />,
+                                    color: 'var(--accent)',
+                                    bg: 'rgba(0,122,255,0.1)',
+                                    title: 'Access-Restricted',
+                                    desc: 'Only licensed medical professionals directly involved in your care can view your records. Every access is authenticated.'
+                                },
+                                {
+                                    icon: <Eye size={22} />,
+                                    color: 'var(--warning)',
+                                    bg: 'rgba(255,149,0,0.1)',
+                                    title: 'Full Transparency',
+                                    desc: 'Every time someone views your records, it is logged. You can see the complete audit trail in your Audit Logs tab at any time.'
+                                },
+                                {
+                                    icon: <Shield size={22} />,
+                                    color: 'var(--primary)',
+                                    bg: 'var(--primary-glow)',
+                                    title: 'You Are In Control',
+                                    desc: 'You can grant or revoke data sharing consent at any time via Privacy Settings. Revocation takes effect immediately.'
+                                },
+                            ].map(({ icon, color, bg, title, desc }) => (
+                                <Card key={title} padding="20px">
+                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+                                        <div style={{ padding: '10px', borderRadius: '12px', backgroundColor: bg, color, flexShrink: 0 }}>
+                                            {icon}
+                                        </div>
+                                        <div>
+                                            <h4 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: 700 }}>{title}</h4>
+                                            <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>{desc}</p>
+                                        </div>
+                                    </div>
+                                </Card>
+                            ))}
                         </div>
-                    </Card>
+
+                        {/* Your HIPAA Rights */}
+                        <Card>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                                <Scale size={22} style={{ color: 'var(--primary)' }} />
+                                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>Your Rights Under HIPAA</h3>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {[
+                                    { right: 'Right to Access', detail: 'You can request a copy of your health records at any time. We provide them within 30 days.' },
+                                    { right: 'Right to Correct', detail: 'If you believe your health information is inaccurate, you can request a correction.' },
+                                    { right: 'Right to Know Who Accessed Your Data', detail: 'You can view the full audit log of everyone who has accessed your health records.' },
+                                    { right: 'Right to Restrict Access', detail: 'You can request that we limit how your health information is used or shared.' },
+                                    { right: 'Right to Revoke Consent', detail: 'You can withdraw your consent for data sharing at any time via Privacy Settings. It takes effect immediately.' },
+                                    { right: 'Right to File a Complaint', detail: 'If you believe your rights have been violated, you can file a complaint with us or with the U.S. Department of Health & Human Services (HHS).' },
+                                ].map(({ right, detail }) => (
+                                    <div key={right} style={{
+                                        padding: '16px',
+                                        backgroundColor: 'var(--bg-secondary)',
+                                        borderRadius: 'var(--radius-md)',
+                                        display: 'flex',
+                                        gap: '14px',
+                                        alignItems: 'flex-start'
+                                    }}>
+                                        <Check size={18} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '2px' }} />
+                                        <div>
+                                            <span style={{ fontWeight: 700, fontSize: '14px', display: 'block', marginBottom: '4px' }}>{right}</span>
+                                            <span style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>{detail}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+
+                        {/* Who Can Access Your Data */}
+                        <Card>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                                <BookOpen size={22} style={{ color: 'var(--accent)' }} />
+                                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>Who Can Access Your Data</h3>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                                {[
+                                    { role: 'Doctors', access: 'Can view your profile, visits, prescriptions, and medical history — only after you grant consent.', allowed: true },
+                                    { role: 'Nurses', access: 'Read-only access to your records for care coordination purposes, with consent required.', allowed: true },
+                                    { role: 'Admins', access: 'Platform administrators can view activity logs for fraud and abuse prevention only.', allowed: true },
+                                    { role: 'Third Parties / Advertisers', access: 'No access. Your data is never shared with advertisers, data brokers, or unrelated companies.', allowed: false },
+                                    { role: 'Insurance Companies', access: 'No automatic sharing. Any sharing requires your explicit written consent.', allowed: false },
+                                ].map(({ role, access, allowed }) => (
+                                    <div key={role} style={{
+                                        padding: '16px',
+                                        borderRadius: 'var(--radius-md)',
+                                        backgroundColor: allowed ? 'rgba(0,122,255,0.05)' : 'rgba(255,59,48,0.05)',
+                                        border: `1px solid ${allowed ? 'rgba(0,122,255,0.15)' : 'rgba(255,59,48,0.15)'}`,
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                            <span style={{ fontWeight: 700, fontSize: '14px' }}>{role}</span>
+                                            <span style={{
+                                                padding: '3px 10px',
+                                                borderRadius: 'var(--radius-full)',
+                                                fontSize: '11px',
+                                                fontWeight: 700,
+                                                textTransform: 'uppercase',
+                                                backgroundColor: allowed ? 'rgba(0,122,255,0.1)' : 'rgba(255,59,48,0.1)',
+                                                color: allowed ? 'var(--accent)' : 'var(--danger)'
+                                            }}>
+                                                {allowed ? 'Conditional' : 'No Access'}
+                                            </span>
+                                        </div>
+                                        <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>{access}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+
+                        {/* Security Measures */}
+                        <Card>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                                <Lock size={22} style={{ color: 'var(--warning)' }} />
+                                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>Technical Security Measures</h3>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+                                {[
+                                    { label: 'Encryption at Rest', value: 'AES-256' },
+                                    { label: 'Encryption in Transit', value: 'TLS 1.3' },
+                                    { label: 'Authentication', value: 'JWT + Supabase Auth' },
+                                    { label: 'Access Control', value: 'Role-Based (RBAC)' },
+                                    { label: 'Audit Logging', value: 'Every access recorded' },
+                                    { label: 'Consent Enforcement', value: 'Middleware-level' },
+                                ].map(({ label, value }) => (
+                                    <div key={label} style={{
+                                        padding: '14px 16px',
+                                        backgroundColor: 'var(--bg-secondary)',
+                                        borderRadius: 'var(--radius-md)',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
+                                        <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{label}</span>
+                                        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>{value}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+
+                        {/* Quick Actions */}
+                        <Card>
+                            <p style={{ margin: '0 0 16px', fontSize: '14px', color: 'var(--text-secondary)' }}>
+                                Questions about your privacy? Take action directly from your dashboard:
+                            </p>
+                            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                                <Button size="sm" onClick={() => setActiveTab('privacy')}>
+                                    <Shield size={15} style={{ marginRight: '6px' }} /> Manage Consent
+                                </Button>
+                                <Button size="sm" variant="secondary" onClick={() => setActiveTab('audit-logs')}>
+                                    <Eye size={15} style={{ marginRight: '6px' }} /> View Audit Logs
+                                </Button>
+                            </div>
+                        </Card>
+                    </div>
                 );
             case 'overview':
                 return (
