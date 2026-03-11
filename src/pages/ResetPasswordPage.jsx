@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Navbar from '../components/layout/Navbar';
@@ -6,36 +6,25 @@ import Card from '../components/ui/Card';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 
+// Parse recovery tokens from the URL hash once on module load — no side-effect needed.
+function parseRecoveryTokens() {
+    const hash = window.location.hash.slice(1);
+    const params = new URLSearchParams(hash);
+    if (params.get('type') !== 'recovery' || !params.get('access_token')) {
+        return { accessToken: '', refreshToken: '', tokenError: 'This password reset link is invalid or has expired. Please request a new one.' };
+    }
+    // Clean the hash from the URL without a reload
+    history.replaceState(null, '', window.location.pathname);
+    return { accessToken: params.get('access_token'), refreshToken: params.get('refresh_token') || '', tokenError: '' };
+}
+
 const ResetPasswordPage = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [accessToken, setAccessToken] = useState('');
-    const [refreshToken, setRefreshToken] = useState('');
-    const [tokenError, setTokenError] = useState('');
+    const [{ accessToken, refreshToken, tokenError }] = useState(parseRecoveryTokens);
     const [status, setStatus] = useState('idle'); // idle | loading | success | error
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
-
-    useEffect(() => {
-        // Supabase puts the tokens in the URL hash fragment:
-        // /reset-password#access_token=XXX&refresh_token=YYY&type=recovery
-        const hash = window.location.hash.slice(1); // remove leading '#'
-        const params = new URLSearchParams(hash);
-        const type = params.get('type');
-        const at = params.get('access_token');
-        const rt = params.get('refresh_token');
-
-        if (!at || type !== 'recovery') {
-            setTokenError('This password reset link is invalid or has expired. Please request a new one.');
-            return;
-        }
-
-        setAccessToken(at);
-        if (rt) setRefreshToken(rt);
-
-        // Clean the hash from the URL without triggering a reload
-        history.replaceState(null, '', window.location.pathname);
-    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
