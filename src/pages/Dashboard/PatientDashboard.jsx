@@ -536,7 +536,7 @@ const PatientDashboard = () => {
                                 <Button size="sm" onClick={() => setActiveTab('privacy')}>
                                     <Shield size={15} style={{ marginRight: '6px' }} /> Manage Consent
                                 </Button>
-                                <Button size="sm" variant="secondary" onClick={() => setActiveTab('audit-logs')}>
+                                <Button size="sm" variant="secondary" onClick={() => setActiveTab('audit')}>
                                     <Eye size={15} style={{ marginRight: '6px' }} /> View Audit Logs
                                 </Button>
                             </div>
@@ -1234,8 +1234,6 @@ const PatientDashboard = () => {
                     </Card>
                 );
 
-            case 'audit-logs':
-                return <AuditLogs />;
 
             default:
                 return null;
@@ -1269,19 +1267,17 @@ const PatientDashboard = () => {
 
                 <div className="tab-navigation" style={{
                     display: 'flex',
+                    flexWrap: 'wrap',
                     gap: '12px',
                     marginBottom: '40px',
-                    overflowX: 'auto',
                     padding: '8px',
                     background: 'var(--glass-bg)',
-                    borderRadius: 'var(--radius-full)',
+                    borderRadius: 'var(--radius-lg)',
                     border: '1px solid var(--glass-stroke)',
-                    width: 'fit-content',
+                    width: '100%',
                     backdropFilter: 'blur(20px)',
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none'
                 }}>
-                    {['overview', 'medical-history', 'prescriptions', 'appointments', 'book-appointment', 'profile', 'privacy', 'audit', 'audit-logs', 'hipaa-compliance'].map(tab => (
+                    {['overview', 'medical-history', 'prescriptions', 'appointments', 'book-appointment', 'profile', 'privacy', 'audit', 'hipaa-compliance'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -1301,7 +1297,7 @@ const PatientDashboard = () => {
                             }}
                             className="hover-scale"
                         >
-                            {tab.replace('-', ' ')}
+                            {tab.replace(/-/g, ' ')}
                         </button>
                     ))}
                 </div>
@@ -1330,7 +1326,12 @@ const PatientDashboard = () => {
                     .tab-navigation {
                         width: 100% !important;
                         border-radius: 16px !important;
-                        padding: 12px 0 !important;
+                        padding: 8px !important;
+                        flex-wrap: nowrap !important;
+                        overflow-x: auto !important;
+                        justify-content: flex-start !important;
+                        scrollbar-width: none !important;
+                        -ms-overflow-style: none !important;
                     }
                     .tab-navigation::-webkit-scrollbar {
                         display: none;
