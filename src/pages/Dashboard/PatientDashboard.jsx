@@ -26,7 +26,6 @@ const PatientDashboard = () => {
     const [bookingForm, setBookingForm] = useState({ doctor_id: '', date: '', time: '' });
     const [loadingVisits, setLoadingVisits] = useState(false);
     const [loadingPrescriptions, setLoadingPrescriptions] = useState(false);
-    const [loadingAppointments, setLoadingAppointments] = useState(false);
 
 
 
@@ -96,7 +95,7 @@ const PatientDashboard = () => {
     };
 
     const fetchAppointments = async () => {
-        setLoadingAppointments(true);
+        setLoadingData(true);
         try {
             const res = await api.get('/appointments/me');
             if (res.data.success) {
@@ -108,7 +107,7 @@ const PatientDashboard = () => {
             console.error("Failed to fetch appointments", error);
             setAppointments([]);
         }
-        setLoadingAppointments(false);
+        setLoadingData(false);
     };
 
     const fetchAuditLogs = async () => {
