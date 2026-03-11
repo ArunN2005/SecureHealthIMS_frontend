@@ -19,6 +19,12 @@ on:
     - cron: '0 0 * * 0'  # Weekly on Sunday at midnight UTC
   workflow_dispatch:
 
+# Explicit top-level permissions so GITHUB_TOKEN can checkout the repo
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+
 jobs:
   analyze:
     name: 🔐 CodeQL Analysis

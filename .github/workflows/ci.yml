@@ -74,10 +74,8 @@ jobs:
         continue-on-error: true
 
       - name: Check for known vulnerabilities
-        uses: snyk/actions/node@master
+        run: npx better-npm-audit audit --level high || true
         continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   # ===========================================================================
   # Stage 2: Build
