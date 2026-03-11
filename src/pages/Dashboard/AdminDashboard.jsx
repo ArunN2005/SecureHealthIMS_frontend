@@ -128,20 +128,27 @@ const AdminDashboard = () => {
                         <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                             <span style={{ marginRight: '12px' }}>Role: {user.role}</span>
 
-                            {/* Status based on verified flag as requested */}
-                            {user.role === 'nurse' ? (
+                            {/* Status label per role */}
+                            {user.role === 'doctor' ? (
                                 <span style={{
-                                    color: user.isverified ? 'var(--danger)' : 'var(--success)',
+                                    color: user.verified ? 'var(--success)' : 'var(--warning)',
                                     fontWeight: 500
                                 }}>
-                                    Status: {user.isverified ? 'Banned (Pending)' : 'Approved'}
+                                    Status: {user.verified ? 'Approved' : 'Pending Approval'}
+                                </span>
+                            ) : user.role === 'nurse' ? (
+                                <span style={{
+                                    color: user.isverified ? 'var(--warning)' : 'var(--success)',
+                                    fontWeight: 500
+                                }}>
+                                    Status: {user.isverified ? 'Pending Approval' : 'Approved'}
                                 </span>
                             ) : (
                                 <span style={{
                                     color: user.verified ? 'var(--success)' : 'var(--danger)',
                                     fontWeight: 500
                                 }}>
-                                    Status: {user.verified ? 'Unbanned' : 'Banned'}
+                                    Status: {user.verified ? 'Active' : 'Banned'}
                                 </span>
                             )}
 

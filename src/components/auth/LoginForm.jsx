@@ -75,7 +75,13 @@ const LoginForm = () => {
                 {loading ? 'Logging in...' : 'Sign In'}
             </Button>
 
-            <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '14px', color: 'var(--text-secondary)' }}>
+            <div style={{ textAlign: 'right', marginTop: '4px' }}>
+                <Link to="/forgot-password" style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 500 }}>
+                    Forgot password?
+                </Link>
+            </div>
+
+            <div style={{ marginTop: '12px', textAlign: 'center', fontSize: '14px', color: 'var(--text-secondary)' }}>
                 New? <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 500 }}>Register now</Link>
             </div>
         </form>
