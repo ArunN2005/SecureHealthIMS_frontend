@@ -124,19 +124,6 @@ const PatientDashboard = () => {
         setLoadingData(false);
     };
 
-    const fetchAppointments = async () => {
-        setLoadingData(true);
-        try {
-            const res = await api.get('/appointments/me');
-            if (res.data.success) {
-                setAppointments(res.data.data.appointments || []);
-            }
-        } catch (error) {
-            console.error('Failed to fetch appointments', error);
-        }
-        setLoadingData(false);
-    };
-
     const fetchDoctors = async () => {
         try {
             const res = await api.get('/doctors');
@@ -1038,9 +1025,8 @@ const PatientDashboard = () => {
                                             <div>
                                                 <h4 style={{ margin: '0 0 2px 0', fontSize: '16px', fontWeight: 600 }}>{presc.medication_name}</h4>
                                                 <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                                                    Dr. {presc.users?.name || 'Unknown'}{presc.users?.specialization ? ` · ${presc.users.specialization}` : ''}
-                                                    Dr. {presc.doctors?.name || 'Doctor'}
-                                                    {presc.doctors?.specialization && <span style={{ opacity: 0.8, fontSize: '11px' }}> • {presc.doctors.specialization}</span>}
+                                                    Dr. {presc.doctors?.name || presc.users?.name || 'Doctor'}
+                                                    {(presc.doctors?.specialization || presc.users?.specialization) && <span style={{ opacity: 0.8, fontSize: '11px' }}> • {presc.doctors?.specialization || presc.users?.specialization}</span>}
                                                 </span>
                                             </div>
                                         </div>
@@ -1118,8 +1104,7 @@ const PatientDashboard = () => {
                     scrollbarWidth: 'none',
                     msOverflowStyle: 'none'
                 }}>
-                    {['overview', 'medical-history', 'prescriptions', 'appointments', 'profile', 'privacy', 'audit', 'book-appointment'].map(tab => (
-                    {['overview', 'medical-history', 'prescriptions', 'profile', 'privacy', 'audit-logs', 'hipaa-compliance'].map(tab => (
+                    {['overview', 'medical-history', 'prescriptions', 'appointments', 'book-appointment', 'profile', 'privacy', 'audit', 'audit-logs', 'hipaa-compliance'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}

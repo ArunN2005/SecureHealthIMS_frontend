@@ -249,6 +249,9 @@ const AdminDashboard = () => {
                     </Card>
                 ))
             )}
+        </div>
+    );
+
     const SecurityTab = () => (
         <div>
             <div style={{ marginBottom: '24px' }}>
