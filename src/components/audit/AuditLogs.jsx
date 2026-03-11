@@ -20,7 +20,7 @@ const AuditLogs = ({ isAdmin = false }) => {
 
     useEffect(() => {
         fetchAuditLogs();
-    }, [filters]);
+    }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const fetchAuditLogs = async () => {
         setLoading(true);
