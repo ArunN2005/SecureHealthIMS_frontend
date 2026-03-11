@@ -23,6 +23,11 @@ const DoctorDashboard = () => {
     const [selectedPatient, setSelectedPatient] = useState(null);
     const [searching, setSearching] = useState(false);
 
+    // Selected Patient Medical History State
+    const [patientAppointments, setPatientAppointments] = useState([]);
+    const [patientPrescriptions, setPatientPrescriptions] = useState([]);
+    const [loadingPatientData, setLoadingPatientData] = useState(false);
+
     // Clinical Forms State
     const [showVisitForm, setShowVisitForm] = useState(false);
     const [showPrescriptionForm, setShowPrescriptionForm] = useState(false);
@@ -145,6 +150,33 @@ const DoctorDashboard = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery, activeTab]);
 
+    // Fetch Selected Patient History
+    useEffect(() => {
+        if (selectedPatient) {
+            const fetchPatientData = async () => {
+                setLoadingPatientData(true);
+                try {
+                    const [resApts, resPres] = await Promise.all([
+                        api.get(`/appointments/patient/${selectedPatient.id}`),
+                        api.get(`/prescriptions/patient/${selectedPatient.id}`)
+                    ]);
+                    
+                    if (resApts.data.success) setPatientAppointments(resApts.data.data);
+                    if (resPres.data.success) setPatientPrescriptions(resPres.data.data);
+                } catch (error) {
+                    console.error("Failed to fetch patient medical history:", error);
+                    setPatientAppointments([]);
+                    setPatientPrescriptions([]);
+                }
+                setLoadingPatientData(false);
+            };
+            fetchPatientData();
+        } else {
+            setPatientAppointments([]);
+            setPatientPrescriptions([]);
+        }
+    }, [selectedPatient]);
+
     const handleEditChange = (e) => {
         setEditForm({ ...editForm, [e.target.name]: e.target.value });
     };
@@ -216,7 +248,7 @@ const DoctorDashboard = () => {
 
     const renderPatientsTab = () => {
         return (
-            <div style={{ display: 'grid', gridTemplateColumns: selectedPatient ? '1fr 2fr' : '1fr', gap: '24px', transition: 'all 0.3s ease' }}>
+            <div className="doctor-patient-grid" style={{ display: 'grid', gridTemplateColumns: selectedPatient ? '1fr 2fr' : '1fr', gap: '24px', transition: 'all 0.3s ease' }}>
                 {/* Search Column */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <Card>
@@ -285,6 +317,10 @@ const DoctorDashboard = () => {
                                         <span>•</span>
                                         <span>{selectedPatient.blood_group || 'Blood Group N/A'}</span>
                                     </div>
+                                    <div style={{ marginTop: '12px', fontSize: '14px' }}>
+                                        <p style={{ margin: '4px 0', color: 'var(--text-secondary)' }}><strong>Allergies:</strong> {selectedPatient.allergies || 'None listed'}</p>
+                                        <p style={{ margin: '4px 0', color: 'var(--text-secondary)' }}><strong>Contact:</strong> {selectedPatient.phone || 'N/A'}</p>
+                                    </div>
                                 </div>
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     <Button size="sm" onClick={() => setShowVisitForm(true)}>
@@ -344,15 +380,53 @@ const DoctorDashboard = () => {
                                 </div>
                             )}
 
-                            {/* Patient History Placeholder */}
+                            {/* Patient History */}
                             <div style={{ display: 'flex', gap: '16px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+                                {/* Appointments Column */}
                                 <div style={{ flex: 1, padding: '16px', backgroundColor: 'var(--bg-primary)', borderRadius: 'var(--radius-md)' }}>
-                                    <h5 style={{ fontWeight: 600, marginBottom: '8px' }}>Recent Visits</h5>
-                                    <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Select patient to view history (Not implemented in this view yet)</p>
+                                    <h5 style={{ fontWeight: 600, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Calendar size={16} style={{ color: 'var(--accent)' }}/>
+                                        Appointments History
+                                    </h5>
+                                    {loadingPatientData ? (
+                                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Loading...</p>
+                                    ) : patientAppointments.length > 0 ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            {patientAppointments.map(apt => (
+                                                <div key={apt.id} style={{ padding: '12px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                                                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent)', marginBottom: '4px', textTransform: 'uppercase' }}>{apt.status}</div>
+                                                    <div style={{ fontSize: '13px', fontWeight: 500 }}>{new Date(apt.appointment_date).toLocaleDateString()}</div>
+                                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Dr. {apt.doctor?.name || 'Unknown'}</div>
+                                                    {apt.reason && <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>"{apt.reason}"</div>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>No appointments found.</p>
+                                    )}
                                 </div>
+
+                                {/* Prescriptions Column */}
                                 <div style={{ flex: 1, padding: '16px', backgroundColor: 'var(--bg-primary)', borderRadius: 'var(--radius-md)' }}>
-                                    <h5 style={{ fontWeight: 600, marginBottom: '8px' }}>Active Prescriptions</h5>
-                                    <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Select patient to view history (Not implemented in this view yet)</p>
+                                    <h5 style={{ fontWeight: 600, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Pill size={16} style={{ color: 'var(--success)' }}/>
+                                        Prescriptions
+                                    </h5>
+                                    {loadingPatientData ? (
+                                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Loading...</p>
+                                    ) : patientPrescriptions.length > 0 ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            {patientPrescriptions.map(px => (
+                                                <div key={px.id} style={{ padding: '12px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                                                    <div style={{ fontSize: '14px', fontWeight: 600 }}>{px.medication_name}</div>
+                                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>{px.dosage} • {px.frequency}</div>
+                                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Dr. {px.doctor?.name || 'Unknown'}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>No active prescriptions.</p>
+                                    )}
                                 </div>
                             </div>
 
@@ -724,13 +798,13 @@ const DoctorDashboard = () => {
                     }}>
                         Doctor Portal
                     </div>
-                    <h1 className="title-font" style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '12px', letterSpacing: '-1.5px' }}>
+                    <h1 className="title-font dashboard-title" style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '12px', letterSpacing: '-1.5px' }}>
                         Welcome back, <span style={{ color: 'var(--primary)' }}>Dr. {user?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}</span>
                     </h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Manage your appointments, patient records, and professional schedule.</p>
                 </header>
 
-                <div style={{
+                <div className="tab-navigation" style={{
                     display: 'flex',
                     gap: '12px',
                     marginBottom: '40px',
@@ -740,7 +814,9 @@ const DoctorDashboard = () => {
                     borderRadius: 'var(--radius-full)',
                     border: '1px solid var(--glass-stroke)',
                     width: 'fit-content',
-                    backdropFilter: 'blur(20px)'
+                    backdropFilter: 'blur(20px)',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
                 }}>
                     {['overview', 'appointments', 'patients', 'profile'].map(tab => (
                         <button
@@ -778,6 +854,33 @@ const DoctorDashboard = () => {
                     </motion.div>
                 </AnimatePresence>
             </div>
+            <style>{`
+                @media (max-width: 768px) {
+                    .dashboard-title {
+                        font-size: 2.2rem !important;
+                        letter-spacing: -1px !important;
+                    }
+                    div[style*="padding: 48px 24px"] {
+                        padding: 24px 16px !important;
+                    }
+                    .tab-navigation {
+                        width: 100% !important;
+                        border-radius: 16px !important;
+                        padding: 12px 0 !important;
+                    }
+                    .tab-navigation::-webkit-scrollbar {
+                        display: none;
+                    }
+                    .doctor-patient-grid {
+                        grid-template-columns: 1fr !important;
+                        gap: 16px !important;
+                    }
+                    .header-actions {
+                        flex-direction: column !important;
+                        gap: 12px !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 };

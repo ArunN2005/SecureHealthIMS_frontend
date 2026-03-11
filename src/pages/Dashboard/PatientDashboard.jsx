@@ -10,6 +10,7 @@ import { User, Edit2, Save, X, Shield, Check, AlertCircle, FileText, Pill } from
 // eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from 'framer-motion';
 import PatientRegistrationModal from '../../components/patient/PatientRegistrationModal';
+import AuditLogs from '../../components/audit/AuditLogs';
 
 const PatientDashboard = () => {
     const { user, updateProfile } = useAuth();
@@ -23,6 +24,9 @@ const PatientDashboard = () => {
     const [doctors, setDoctors] = useState([]);
     const [loadingData, setLoadingData] = useState(false);
     const [bookingForm, setBookingForm] = useState({ doctor_id: '', date: '', time: '' });
+    const [loadingVisits, setLoadingVisits] = useState(false);
+    const [loadingPrescriptions, setLoadingPrescriptions] = useState(false);
+    const [loadingAppointments, setLoadingAppointments] = useState(false);
 
 
 
@@ -66,29 +70,45 @@ const PatientDashboard = () => {
     const [message, setMessage] = useState('');
 
     const fetchVisits = async () => {
-        setLoadingData(true);
+        setLoadingVisits(true);
         try {
             const res = await api.get('/visits/me');
             if (res.data.success) {
-                setVisits(res.data.data.visits);
+                setVisits(res.data.data.visits || []);
             }
         } catch (error) {
             console.error("Failed to fetch visits", error);
         }
-        setLoadingData(false);
+        setLoadingVisits(false);
     };
 
     const fetchPrescriptions = async () => {
-        setLoadingData(true);
+        setLoadingPrescriptions(true);
         try {
             const res = await api.get('/prescriptions/me');
             if (res.data.success) {
-                setPrescriptions(res.data.data.prescriptions);
+                setPrescriptions(res.data.data.prescriptions || []);
             }
         } catch (error) {
             console.error("Failed to fetch prescriptions", error);
         }
-        setLoadingData(false);
+        setLoadingPrescriptions(false);
+    };
+
+    const fetchAppointments = async () => {
+        setLoadingAppointments(true);
+        try {
+            const res = await api.get('/appointments/me');
+            if (res.data.success) {
+                // Return structure is { appointments, total } for /me endpoint
+                const data = res.data.data;
+                setAppointments(Array.isArray(data) ? data : (data?.appointments || []));
+            }
+        } catch (error) {
+            console.error("Failed to fetch appointments", error);
+            setAppointments([]);
+        }
+        setLoadingAppointments(false);
     };
 
     const fetchAuditLogs = async () => {
@@ -312,6 +332,11 @@ const PatientDashboard = () => {
             fetchConsents();
         }
 
+        if (activeTab === 'overview') {
+            fetchVisits();
+            fetchAppointments();
+            fetchPrescriptions();
+        }
         if (activeTab === 'medical-history') {
             fetchVisits();
         }
@@ -332,12 +357,34 @@ const PatientDashboard = () => {
 
     const renderTabContent = () => {
         switch (activeTab) {
+            case 'hipaa-compliance':
+                return (
+                    <Card>
+                        <div style={{ marginBottom: '24px' }}>
+                            <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--primary)', marginBottom: '12px' }}>HIPAA Compliance & Data Usage Policy</h2>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '16px', marginBottom: '16px' }}>
+                                Our platform is fully compliant with HIPAA regulations. Your health data is protected by industry-standard security measures, including encryption, access controls, and audit logging. <br /><br />
+                                <strong>Data Usage Policy:</strong> <br />
+                                - Your data will <strong>never</strong> be shared with third parties without your explicit consent.<br />
+                                - All access to your records is logged and monitored.<br />
+                                - You can review, update, or revoke your consent for data sharing at any time.<br />
+                                - Only authorized medical professionals can access your data for treatment purposes.<br />
+                                - We enforce strict privacy controls and regularly review our security practices.<br /><br />
+                                For detailed information, please review our full privacy policy or contact our support team.
+                            </p>
+                            <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '8px', fontSize: '15px', color: 'var(--text-primary)' }}>
+                                <strong>Summary:</strong> <br />
+                                We are committed to protecting your privacy. Your health information is never sold, shared, or used for purposes other than your care and platform operations. All data usage is governed by HIPAA and our internal policies.
+                            </div>
+                        </div>
+                    </Card>
+                );
             case 'overview':
                 return (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-                        <Card>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }} className="patient-grid">
+                        <Card className="full-width-mobile">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-                                <div style={{ padding: '12px', borderRadius: '50%', backgroundColor: 'rgba(0, 122, 255, 0.1)', color: 'var(--accent)' }}>
+                                <div className="icon-rounded" style={{ padding: '12px', borderRadius: '50%', backgroundColor: 'rgba(0, 122, 255, 0.1)', color: 'var(--accent)' }}>
                                     <User size={24} />
                                 </div>
                                 <div>
@@ -353,9 +400,9 @@ const PatientDashboard = () => {
                             </div>
                         </Card>
 
-                        <Card>
+                        <Card className="full-width-mobile">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-                                <div style={{ padding: '12px', borderRadius: '50%', backgroundColor: 'rgba(52, 199, 89, 0.1)', color: 'var(--success)' }}>
+                                <div className="icon-rounded" style={{ padding: '12px', borderRadius: '50%', backgroundColor: 'rgba(52, 199, 89, 0.1)', color: 'var(--success)' }}>
                                     <Shield size={24} />
                                 </div>
                                 <div>
@@ -393,14 +440,26 @@ const PatientDashboard = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
                                 <div style={{ padding: '12px', borderRadius: '50%', backgroundColor: 'rgba(255, 59, 48, 0.1)', color: 'var(--danger)' }}>
                                     <FileText size={24} />
+                                    <Shield size={24} />
                                 </div>
                                 <div>
-                                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>Medical History</h3>
-                                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14px' }}>View recent visits</p>
+                                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>Upcoming Appointments</h3>
+                                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14px' }}>
+                                        {appointments.filter(a => a.status === 'Pending' || a.status === 'Confirmed' || a.status === 'scheduled').length} scheduled
+                                    </p>
                                 </div>
                             </div>
+                            {appointments.filter(a => a.status === 'Pending' || a.status === 'Confirmed' || a.status === 'scheduled').slice(0, 2).map(apt => (
+                                <div key={apt.id} style={{ padding: '8px', marginBottom: '8px', borderLeft: '3px solid var(--warning)', backgroundColor: 'rgba(0,0,0,0.02)' }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 600 }}>{new Date(apt.date).toLocaleDateString()}</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                        Dr. {apt.doctor?.name || 'Doctor'} 
+                                        {apt.doctor?.specialization && <span style={{ opacity: 0.8, fontSize: '11px' }}> • {apt.doctor.specialization}</span>}
+                                    </div>
+                                </div>
+                            ))}
                             <Button variant="secondary" size="sm" onClick={() => setActiveTab('medical-history')} style={{ marginTop: '8px', width: '100%' }}>
-                                View History
+                                View All
                             </Button>
                         </Card>
 
@@ -828,7 +887,7 @@ const PatientDashboard = () => {
                         <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '24px', display: 'flex', alignItems: 'center' }}>
                             <FileText size={24} style={{ marginRight: '10px', color: 'var(--accent)' }} /> Medical History
                         </h2>
-                        {loadingData ? (
+                        {loadingVisits ? (
                             <p>Loading visits...</p>
                         ) : visits.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-tertiary)' }}>
@@ -851,6 +910,8 @@ const PatientDashboard = () => {
                                                 </h4>
                                                 <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                                                     Dr. {visit.doctor?.name || 'Unknown'}{visit.doctor?.specialization ? ` · ${visit.doctor.specialization}` : ''}
+                                                    Dr. {visit.doctors?.name || 'Doctor'}
+                                                    {visit.doctors?.specialization && <span style={{ opacity: 0.8, fontSize: '12px' }}> • {visit.doctors.specialization}</span>}
                                                 </span>
                                             </div>
                                             <span style={{ fontSize: '13px', padding: '4px 12px', borderRadius: '12px', backgroundColor: 'rgba(0,0,0,0.05)', height: 'fit-content' }}>
@@ -954,7 +1015,7 @@ const PatientDashboard = () => {
                         <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '24px', display: 'flex', alignItems: 'center' }}>
                             <Pill size={24} style={{ marginRight: '10px', color: 'var(--success)' }} /> Prescriptions
                         </h2>
-                        {loadingData ? (
+                        {loadingPrescriptions ? (
                             <p>Loading prescriptions...</p>
                         ) : prescriptions.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-tertiary)' }}>
@@ -978,6 +1039,8 @@ const PatientDashboard = () => {
                                                 <h4 style={{ margin: '0 0 2px 0', fontSize: '16px', fontWeight: 600 }}>{presc.medication_name}</h4>
                                                 <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                                                     Dr. {presc.users?.name || 'Unknown'}{presc.users?.specialization ? ` · ${presc.users.specialization}` : ''}
+                                                    Dr. {presc.doctors?.name || 'Doctor'}
+                                                    {presc.doctors?.specialization && <span style={{ opacity: 0.8, fontSize: '11px' }}> • {presc.doctors.specialization}</span>}
                                                 </span>
                                             </div>
                                         </div>
@@ -1008,6 +1071,9 @@ const PatientDashboard = () => {
                     </Card>
                 );
 
+            case 'audit-logs':
+                return <AuditLogs />;
+
             default:
                 return null;
         }
@@ -1016,7 +1082,7 @@ const PatientDashboard = () => {
     return (
         <div style={{ minHeight: '100vh', position: 'relative' }}>
             <Navbar />
-            <div className="animate-fade-in" style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px' }}>
+            <div className="animate-fade-in dashboard-container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px' }}>
                 <header style={{ marginBottom: '48px' }}>
                     <div style={{
                         display: 'inline-block',
@@ -1032,13 +1098,13 @@ const PatientDashboard = () => {
                     }}>
                         Patient Portal
                     </div>
-                    <h1 className="title-font" style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '12px', letterSpacing: '-1.5px' }}>
+                    <h1 className="title-font dashboard-title" style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '12px', letterSpacing: '-1.5px' }}>
                         Welcome back, <span style={{ color: 'var(--primary)' }}>{user?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}</span>
                     </h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Manage your health profile, consultation history, and privacy settings.</p>
                 </header>
 
-                <div style={{
+                <div className="tab-navigation" style={{
                     display: 'flex',
                     gap: '12px',
                     marginBottom: '40px',
@@ -1048,9 +1114,12 @@ const PatientDashboard = () => {
                     borderRadius: 'var(--radius-full)',
                     border: '1px solid var(--glass-stroke)',
                     width: 'fit-content',
-                    backdropFilter: 'blur(20px)'
+                    backdropFilter: 'blur(20px)',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
                 }}>
                     {['overview', 'medical-history', 'prescriptions', 'appointments', 'profile', 'privacy', 'audit', 'book-appointment'].map(tab => (
+                    {['overview', 'medical-history', 'prescriptions', 'profile', 'privacy', 'audit-logs', 'hipaa-compliance'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -1062,10 +1131,11 @@ const PatientDashboard = () => {
                                 color: activeTab === tab ? 'white' : 'var(--text-secondary)',
                                 fontWeight: 700,
                                 fontSize: '14px',
-                                cursor: 'none',
+                                cursor: 'pointer',
                                 transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
                                 textTransform: 'uppercase',
-                                letterSpacing: '0.5px'
+                                letterSpacing: '0.5px',
+                                whiteSpace: 'nowrap'
                             }}
                             className="hover-scale"
                         >
@@ -1086,6 +1156,32 @@ const PatientDashboard = () => {
                     </motion.div>
                 </AnimatePresence>
             </div>
+            <style>{`
+                @media (max-width: 768px) {
+                    .dashboard-title {
+                        font-size: 2.2rem !important;
+                        letter-spacing: -1px !important;
+                    }
+                    .dashboard-container {
+                        padding: 24px 16px !important;
+                    }
+                    .tab-navigation {
+                        width: 100% !important;
+                        border-radius: 16px !important;
+                        padding: 12px 0 !important;
+                    }
+                    .tab-navigation::-webkit-scrollbar {
+                        display: none;
+                    }
+                    .patient-grid {
+                        grid-template-columns: 1fr !important;
+                        gap: 16px !important;
+                    }
+                    .full-width-mobile {
+                        width: 100% !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 };
